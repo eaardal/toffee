@@ -1,4 +1,5 @@
-﻿using Toffee.Infrastructure;
+﻿using System;
+using Toffee.Infrastructure;
 
 namespace Toffee
 {
@@ -24,7 +25,14 @@ namespace Toffee
         {
             (var isValid, var reason) = _commandArgsParser.IsValid(args);
 
-            if (isValid)
+            if (!isValid)
+            {
+                _ui.WriteLineError(reason);
+
+                return ExitCodes.Error;
+            }
+
+            try
             {
                 var command = _commandArgsParser.Parse(args);
 
@@ -32,10 +40,12 @@ namespace Toffee
 
                 return ExitCodes.Success;
             }
+            catch (Exception ex)
+            {
+                _ui.WriteLineError(ex.Message);
 
-            _ui.WriteLineError(reason);
-
-            return ExitCodes.Error;
+                return ExitCodes.Error;
+            }
         }
     }
 }

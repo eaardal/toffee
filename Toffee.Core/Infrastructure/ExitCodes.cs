@@ -1,4 +1,4 @@
-﻿namespace Toffee
+﻿namespace Toffee.Infrastructure
 {
     public class ExitCodes
     {

@@ -58,5 +58,17 @@ namespace Toffee.Infrastructure
         {
             File.AppendAllLines(filePath, new []{line});
         }
+
+        public IEnumerable<FileInfo> GetFilesByExtensionRecursively(string path, string extension)
+        {
+            var directory = new DirectoryInfo(path);
+
+            if (directory.Exists)
+            {
+                return directory.GetFiles(extension, SearchOption.AllDirectories);
+            }
+
+            throw new DirectoryNotFoundException($"The directory {path} does not exist");
+        }
     }
 }

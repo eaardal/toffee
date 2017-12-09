@@ -1,15 +1,24 @@
 ﻿using System.IO;
+using Toffee.Infrastructure;
 
 namespace Toffee
 {
     public class LinkFromCommandArgsParser : ICommandArgsParser<LinkFromCommandArgs>
     {
+        private readonly IFilesystem _filesystem;
+
+        public LinkFromCommandArgsParser(IFilesystem filesystem)
+        {
+            _filesystem = filesystem;
+        }
+
         public (bool isValid, string reason) IsValid(string[] args)
         {
             if (args.Length != 3)
             {
                 return (false, "Invalid args. Syntax for the \"link-from\" command is: \"link-from src={path} as={link-name}\"");
             }
+
             var command = args[0];
 
             if (command != "link-from")
@@ -36,10 +45,12 @@ namespace Toffee
                 return (false, "Path to source directory was not given correctly. It should be src={valid-path}. Could not find the \"src\"-part. Remember to wrap the path in double quotes if it contains spaces.");
             }
             
-            if (!Directory.Exists(sourceDirectoryPathParts[1]))
+            if (!_filesystem.DirectoryExists(sourceDirectoryPathParts[1]))
             {
                 return (false, "Path to source directory does not exist. Remember to wrap the path in double quotes if it contains spaces.");
             }
+
+            // TODO: Validate path is absolute
 
             var linkName = args[2];
 

@@ -15,5 +15,6 @@ namespace Toffee.Infrastructure
         void CreateDirectory(string path);
         void CreateFile(string path);
         void AppendLine(string filePath, string line);
+        IEnumerable<FileInfo> GetFilesByExtensionRecursively(string path, string extension);
     }
 }

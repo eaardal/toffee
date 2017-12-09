@@ -105,5 +105,17 @@ namespace Toffee
 
             return lines.Select(Link.ParseFromCsv);
         }
+
+        public Link GetLink(string linkName)
+        {
+            var link = GetAllLinks().SingleOrDefault(l => l.LinkName == linkName);
+
+            if (link != null)
+            {
+                return link;
+            }
+
+            throw new LinkNotFoundException($"The link {linkName} was not found in the registry");
+        }
     }
 }

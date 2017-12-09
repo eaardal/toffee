@@ -7,5 +7,6 @@ namespace Toffee
         void SaveOrUpdateLink(string linkName, string path);
         (bool ok, Link link) TryGetLink(string linkName);
         IEnumerable<Link> GetAllLinks();
+        Link GetLink(string linkName);
     }
 }
