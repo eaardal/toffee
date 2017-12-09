@@ -15,7 +15,7 @@ namespace Toffee
             _filesystem = filesystem;
         }
 
-        public Dictionary<string, string> LinkReferencedNuGetDllsToLocalDlls(string csprojPath, Link link, string[] dlls)
+        public Dictionary<string, string> ReplaceReferencedNuGetDllsWithLinkDlls(string csprojPath, Link link, string[] dlls)
         {
             var replacedLines = new Dictionary<string, string>();
 
@@ -33,15 +33,15 @@ namespace Toffee
                 {
                     linesCopy.Add(line);
 
+                    var commentLine = $"<!-- Line below was replaced by Toffee at {DateTime.Now:dd.MM.yyyy HH:mm:ss}. Original line: {line} -->";
+                    linesCopy.Add(commentLine);
+
                     var replacedLine = ConstructHintPathLineWithLinkedDll(link, dll);
                     linesCopy.Add(replacedLine);
 
-                    var commentLine = $"<!-- Line above was replaced by Toffee at {DateTime.Now:dd.MM.yyyy HH:mm:ss}. Original line: {line} -->";
-                    linesCopy.Add(commentLine);
-
                     replacedLines.Add(line, replacedLine);
 
-                    i = i + 3; // Skipping next line (now replaced by new dll path), and the one after (comment line)
+                    i = i + 3; // Skipping next line (comment line), and the one after (HintPath line, now replaced by new dll path)
                 }
                 else
                 {
@@ -50,6 +50,8 @@ namespace Toffee
                     i++;
                 }
             }
+
+            _filesystem.WriteAllLines(csprojPath, linesCopy);
 
             return replacedLines;
         }
@@ -68,14 +70,14 @@ namespace Toffee
 
         private static string ConstructPathToLinkDll(Link link, string dll)
         {
-            return Path.Combine(link.SourceDirectoryPath, dll);
+            return Path.Combine(link.SourceDirectoryPath, $"{dll}.dll");
         }
 
         private static (bool isReference, string dll) IsReferenceToInstalledNuGetPackage(string line, IEnumerable<string> dlls)
         {
             foreach (var dll in dlls)
             {
-                if (line.StartsWith($"<Reference Include={dll}, Version"))
+                if (line.StartsWith($"<Reference Include=\"{dll}, Version"))
                 {
                     return (true, dll);
                 }

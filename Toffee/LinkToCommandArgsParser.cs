@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using Toffee.Infrastructure;
 
 namespace Toffee
@@ -6,10 +8,12 @@ namespace Toffee
     public class LinkToCommandArgsParser : ICommandArgsParser<LinkToCommandArgs>
     {
         private readonly IFilesystem _filesystem;
+        private readonly ILinkRegistryFile _linkRegistryFile;
 
-        public LinkToCommandArgsParser(IFilesystem filesystem)
+        public LinkToCommandArgsParser(IFilesystem filesystem, ILinkRegistryFile linkRegistryFile)
         {
             _filesystem = filesystem;
+            _linkRegistryFile = linkRegistryFile;
         }
 
         public (bool isValid, string reason) IsValid(string[] args)
@@ -45,14 +49,14 @@ namespace Toffee
                 return (false, "Path to destination directory does not exist. Remember to wrap the path in double quotes if it contains spaces.");
             }
 
-            var linkName = args[2];
+            var linkNameArg = args[2];
 
-            if (string.IsNullOrEmpty(linkName))
+            if (string.IsNullOrEmpty(linkNameArg))
             {
                 return (false, "Link name was not set");
             }
 
-            var linkNameParts = linkName.Split('=');
+            var linkNameParts = linkNameArg.Split('=');
 
             if (linkNameParts.Length != 2)
             {
@@ -69,14 +73,23 @@ namespace Toffee
                 return (false, "Link name can not contain spaces");
             }
 
-            var dlls = args[3];
+            var linkName = linkNameParts[1];
 
-            if (string.IsNullOrEmpty(dlls))
+            (var foundLink, var link) = _linkRegistryFile.TryGetLink(linkName);
+
+            if (!foundLink)
+            {
+                return (false, $"The link \"{linkName}\" does not exist in the registry");
+            }
+
+            var dllsArg = args[3];
+
+            if (string.IsNullOrEmpty(dllsArg))
             {
                 return (false, "List of dlls to link was not set. It should be dlls={comma-separated-list-of-dll-names-with-no-spaces}");
             }
 
-            var dllsParts = dlls.Split('=');
+            var dllsParts = dllsArg.Split('=');
 
             if (dllsParts.Length != 2)
             {
@@ -93,7 +106,17 @@ namespace Toffee
                 return (false, "List of dlls can not contain spaces");
             }
 
-            // TODO: Validate dlls exists in the link's source directory
+            var dlls = dllsParts[1].Split(',');
+
+            foreach (var dll in dlls)
+            {
+                var fullDllPath = Path.Combine(link.SourceDirectoryPath, dll);
+
+                if (!_filesystem.FileExists(fullDllPath))
+                {
+                    return (false, $"The DLL \"{fullDllPath}\" does not exist. The path was constructed by combining the link's ({linkName}) Source Directory ({link.SourceDirectoryPath}) and the entered DLL {dll}. One of these values must be adjusted to make a valid path");
+                }
+            }
 
             return (true, null);
         }
@@ -102,7 +125,7 @@ namespace Toffee
         {
             var destinationDirectoryPath = args[1].Split('=')[1];
             var linkName = args[2].Split('=')[1];
-            var dlls = args[3].Split('=')[1].Split(',');
+            var dlls = args[3].Split('=')[1].Split(',').Select(d => d.EndsWith(".dll") ? d.Substring(0, d.Length - 4) : d);
 
             return new LinkToCommandArgs(destinationDirectoryPath, linkName, dlls);
         }

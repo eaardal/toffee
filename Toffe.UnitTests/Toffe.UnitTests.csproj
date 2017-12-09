@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Toffee.Core\Toffee.csproj" />
+    <ProjectReference Include="..\Toffee\Toffee.csproj" />
   </ItemGroup>
 
 </Project>

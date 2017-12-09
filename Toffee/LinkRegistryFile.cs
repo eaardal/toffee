@@ -8,21 +8,21 @@ namespace Toffee
     class LinkRegistryFile : ILinkRegistryFile
     {
         private readonly IFilesystem _filesystem;
-        private readonly IEnvironment _environment;
+        private readonly IToffeeAppDataDirectory _toffeeAppDataDirectory;
 
-        public LinkRegistryFile(IFilesystem filesystem, IEnvironment environment)
+        public LinkRegistryFile(IFilesystem filesystem, IToffeeAppDataDirectory toffeeAppDataDirectory)
         {
             _filesystem = filesystem;
-            _environment = environment;
+            _toffeeAppDataDirectory = toffeeAppDataDirectory;
         }
 
-        public void SaveOrUpdateLink(string linkName, string path)
+        public void InsertOrUpdateLink(string linkName, string path)
         {
             EnsureLinkRegistryFileExists();
 
-            (var ok, var link) = TryGetLink(linkName);
+            (var exists, var link) = TryGetLink(linkName);
 
-            if (ok)
+            if (exists)
             {
                 UpdateLink(link.LinkName, path);
             }
@@ -67,25 +67,19 @@ namespace Toffee
 
         private (string filePath, string directoryPath) EnsureLinkRegistryFileExists()
         {
-            var appDataDirectory = _environment.GetAppDataDirectoryPath();
-            var toffeeAppDataDirectory = Path.Combine(appDataDirectory, "Toffee");
+            var toffeeAppDataDirectoryPath = _toffeeAppDataDirectory.EnsureExists();
 
-            if (!_filesystem.DirectoryExists(toffeeAppDataDirectory))
-            {
-                _filesystem.CreateDirectory(toffeeAppDataDirectory);
-            }
-
-            var linkRegistryFile = Path.Combine(toffeeAppDataDirectory, "LinkRegistry.csv");
+            var linkRegistryFile = Path.Combine(toffeeAppDataDirectoryPath, "LinkRegistry.csv");
 
             if (!_filesystem.FileExists(linkRegistryFile))
             {
                 _filesystem.CreateFile(linkRegistryFile);
             }
 
-            return (linkRegistryFile, toffeeAppDataDirectory);
+            return (linkRegistryFile, toffeeAppDataDirectoryPath);
         }
 
-        public (bool ok, Link link) TryGetLink(string linkName)
+        public (bool exists, Link link) TryGetLink(string linkName)
         {
             var link = GetAllLinks().SingleOrDefault(l => l.LinkName == linkName);
 

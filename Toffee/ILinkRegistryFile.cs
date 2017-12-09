@@ -4,8 +4,8 @@ namespace Toffee
 {
     public interface ILinkRegistryFile
     {
-        void SaveOrUpdateLink(string linkName, string path);
-        (bool ok, Link link) TryGetLink(string linkName);
+        void InsertOrUpdateLink(string linkName, string path);
+        (bool exists, Link link) TryGetLink(string linkName);
         IEnumerable<Link> GetAllLinks();
         Link GetLink(string linkName);
     }

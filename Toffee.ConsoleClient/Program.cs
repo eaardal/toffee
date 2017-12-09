@@ -38,7 +38,7 @@ namespace Toffee.ConsoleClient
 
             Startup();
 
-            return IsDebug() ? Repl() : Run(args);
+            return BuildConfiguration.IsDebug() ? Repl() : Run(args);
         }
 
         private static void Startup()
@@ -76,14 +76,6 @@ namespace Toffee.ConsoleClient
             var command = args.ElementAt(0);
 
             return _commandHandler.Handle(command, args);
-        }
-
-        private static bool IsDebug()
-        {
-#if DEBUG
-            return true;
-#endif
-            return false;
         }
     }
 }

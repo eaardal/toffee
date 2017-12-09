@@ -26,14 +26,14 @@ namespace Toffee
                 return (false, "First param was not the link-from command");
             }
 
-            var sourceDirectoryPath = args[1];
+            var sourceDirectoryPathArg = args[1];
 
-            if (string.IsNullOrEmpty(sourceDirectoryPath))
+            if (string.IsNullOrEmpty(sourceDirectoryPathArg))
             {
                 return (false, "Path to source directory was not set");
             }
 
-            var sourceDirectoryPathParts = sourceDirectoryPath.Split('=');
+            var sourceDirectoryPathParts = sourceDirectoryPathArg.Split('=');
 
             if (sourceDirectoryPathParts.Length != 2)
             {
@@ -44,13 +44,18 @@ namespace Toffee
             {
                 return (false, "Path to source directory was not given correctly. It should be src={valid-path}. Could not find the \"src\"-part. Remember to wrap the path in double quotes if it contains spaces.");
             }
-            
-            if (!_filesystem.DirectoryExists(sourceDirectoryPathParts[1]))
+
+            var sourceDirectoryPath = sourceDirectoryPathParts[1];
+
+            if (!_filesystem.DirectoryExists(sourceDirectoryPath))
             {
                 return (false, "Path to source directory does not exist. Remember to wrap the path in double quotes if it contains spaces.");
             }
 
-            // TODO: Validate path is absolute
+            if (!Path.IsPathRooted(sourceDirectoryPath))
+            {
+                return (false, "The source directory path must be absolute");
+            }
 
             var linkName = args[2];
 

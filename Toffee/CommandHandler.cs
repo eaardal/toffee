@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Toffee.Infrastructure;
 
@@ -18,15 +17,15 @@ namespace Toffee
 
         public int Handle(string command, string[] commandArgs)
         {
-            var commandHandler = _commands.SingleOrDefault(c => c.CanHandle(command));
+            var cmd = _commands.SingleOrDefault(c => c.CanExecute(command));
 
-            if (commandHandler == null)
+            if (cmd == null)
             {
                 _ui.WriteLineError($"The command \"{command}\" does not match any known commands");
                 return ExitCodes.Error;
             }
 
-            return commandHandler.Handle(commandArgs);
+            return cmd.Execute(commandArgs);
         }
     }
 }

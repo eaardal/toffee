@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Toffee.Infrastructure;
 
 namespace Toffee
@@ -10,25 +8,34 @@ namespace Toffee
     {
         private readonly ICommandArgsParser<LinkToCommandArgs> _commandArgsParser;
         private readonly ILinkRegistryFile _linkRegistryFile;
+        private readonly ILinkFile _linkFile;
         private readonly IFilesystem _filesystem;
         private readonly INetFxCsproj _netFxCsProj;
         private readonly IUserInterface _ui;
 
-        public LinkToCommand(ICommandArgsParser<LinkToCommandArgs> commandArgsParser, ILinkRegistryFile linkRegistryFile, IFilesystem filesystem, INetFxCsproj netFxCsProj, IUserInterface ui)
+        public LinkToCommand(
+            ICommandArgsParser<LinkToCommandArgs> commandArgsParser, 
+            ILinkRegistryFile linkRegistryFile,
+            ILinkFile linkFile,
+            IFilesystem filesystem, 
+            INetFxCsproj netFxCsProj, 
+            IUserInterface ui
+            )
         {
             _commandArgsParser = commandArgsParser;
             _linkRegistryFile = linkRegistryFile;
+            _linkFile = linkFile;
             _filesystem = filesystem;
             _netFxCsProj = netFxCsProj;
             _ui = ui;
         }
 
-        public bool CanHandle(string command)
+        public bool CanExecute(string command)
         {
             return command == "link-to";
         }
 
-        public int Handle(string[] args)
+        public int Execute(string[] args)
         {
             (var isValid, var reason) = _commandArgsParser.IsValid(args);
 
@@ -48,12 +55,14 @@ namespace Toffee
 
                 foreach (var csproj in csprojs)
                 {
-                    var replacedDlls = _netFxCsProj.LinkReferencedNuGetDllsToLocalDlls(csproj.FullName, link, command.Dlls.ToArray());
+                    var replacedDlls = _netFxCsProj.ReplaceReferencedNuGetDllsWithLinkDlls(csproj.FullName, link, command.Dlls.ToArray());
 
                     foreach (var replacedDll in replacedDlls)
                     {
-                        _ui.WriteLineSuccess($"{csproj.Name}: Replaced \"{replacedDll.Key}\" -> \"{replacedDll.Value}\"");
+                        _ui.WriteLineSuccess($"{csproj.FullName}: Replaced \"{replacedDll.Key}\" with \"{replacedDll.Value}\"");
                     }
+
+                    _linkFile.WriteReplacedDlls(link.LinkName, replacedDlls, csproj.FullName);
                 }
 
                 return ExitCodes.Success;

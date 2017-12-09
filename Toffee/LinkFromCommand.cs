@@ -16,12 +16,12 @@ namespace Toffee
             _ui = ui;
         }
 
-        public bool CanHandle(string command)
+        public bool CanExecute(string command)
         {
             return command == "link-from";
         }
 
-        public int Handle(string[] args)
+        public int Execute(string[] args)
         {
             (var isValid, var reason) = _commandArgsParser.IsValid(args);
 
@@ -36,7 +36,7 @@ namespace Toffee
             {
                 var command = _commandArgsParser.Parse(args);
 
-                _linkRegistryFile.SaveOrUpdateLink(command.LinkName, command.SourceDirectoryPath);
+                _linkRegistryFile.InsertOrUpdateLink(command.LinkName, command.SourceDirectoryPath);
 
                 return ExitCodes.Success;
             }

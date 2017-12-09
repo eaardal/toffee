@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using Shouldly;
 using Toffee;
+using Toffee.Infrastructure;
 
 namespace Toffe.UnitTests
 {
@@ -21,7 +22,7 @@ namespace Toffe.UnitTests
         {
             var sut = _fixture.CreateSut();
 
-            sut.CanHandle("link-from").ShouldBeTrue();
+            sut.CanExecute("link-from").ShouldBeTrue();
         }
 
         [TestMethod]
@@ -33,7 +34,7 @@ namespace Toffe.UnitTests
                 .SetupInvalidArgs()
                 .CreateSut();
 
-            var exitCode = sut.Handle(args);
+            var exitCode = sut.Execute(args);
 
             exitCode.ShouldBe(ExitCodes.Error);
         }
