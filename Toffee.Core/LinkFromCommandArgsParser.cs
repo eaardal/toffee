@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Toffee.Core
+namespace Toffee
 {
     public class LinkFromCommandArgsParser : ICommandArgsParser<LinkFromCommandArgs>
     {

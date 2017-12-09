@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Toffee.Core
+namespace Toffee
 {
     public class CommandHandler : ICommandHandler
     {

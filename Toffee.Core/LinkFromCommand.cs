@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Toffee.Core
+﻿namespace Toffee
 {
     public class LinkFromCommand : ICommand
     {

@@ -1,21 +1,22 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NUnit.Framework;
 using Shouldly;
+using Toffee;
 
-namespace Toffee.Core.UnitTests
+namespace Toffe.UnitTests
 {
-    [TestFixture]
+    [TestClass]
     public class LinkFromCommandTests
     {
         private LinkFromCommandTestFixture _fixture;
 
-        [SetUp]
+        [TestMethod]
         public void SetUp()
         {
             _fixture = new LinkFromCommandTestFixture();
         }
 
-        [Test]
+        [TestMethod]
         public void CanHandle_WhenCommandIsLinkFrom_ReturnsTrue()
         {
             var sut = _fixture.CreateSut();
@@ -23,7 +24,7 @@ namespace Toffee.Core.UnitTests
             sut.CanHandle("link-from").ShouldBeTrue();
         }
 
-        [Test]
+        [TestMethod]
         public void Handle_WhenArgsAreInvalid_ReturnsErrorExitCode()
         {
             var args = new string[0];

@@ -1,20 +1,22 @@
-﻿using NUnit.Framework;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Shouldly;
+using Toffee;
 
-namespace Toffee.Core.UnitTests
+namespace Toffe.UnitTests
 {
-    [TestFixture]
+    [TestClass]
     public class LinkFromCommandArgsParserTests
     {
         private LinkFromCommandArgsParserTestFixture _fixture;
 
-        [SetUp]
+        [TestMethod]
         public void SetUp()
         {
             _fixture = new LinkFromCommandArgsParserTestFixture();
         }
 
-        [Test]
+        [TestMethod]
         public void CreatesSystemUnderTest()
         {
             var sut = _fixture.CreateSut();

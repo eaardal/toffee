@@ -1,4 +1,6 @@
-﻿namespace Toffee.Core.UnitTests
+﻿using Toffee;
+
+namespace Toffe.UnitTests
 {
     internal class LinkFromCommandArgsParserTestFixture : ITestFixture<LinkFromCommandArgsParser>
     {

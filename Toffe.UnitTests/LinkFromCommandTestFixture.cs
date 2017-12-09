@@ -1,6 +1,7 @@
 ﻿using Moq;
+using Toffee;
 
-namespace Toffee.Core.UnitTests
+namespace Toffe.UnitTests
 {
     internal class LinkFromCommandTestFixture : ITestFixture<LinkFromCommand>
     {

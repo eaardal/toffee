@@ -1,4 +1,4 @@
-﻿namespace Toffee.Core
+﻿namespace Toffee
 {
     public class LinkFromCommandArgs
     {
