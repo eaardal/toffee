@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Toffee.Infrastructure.Startup;
 
 namespace Toffee.ConsoleClient
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static ICommandHandler _commandHandler;
+
+        public static void Main(string[] args)
         {
             /*  toffee link-from src={path-bin-debug} as={link-name} - Lagrer path til bin/debug mappen i prosjektet man vil linke til
              *    
@@ -18,7 +22,58 @@ namespace Toffee.ConsoleClient
              *      3. Symlinke til bin/debug
              */
 
-            var commands = new List<ICommand>();
+            Startup();
+
+            if (IsDebug())
+            {
+                Repl();
+            }
+            else
+            {
+                Run(args);
+            }
+        }
+
+        private static void Startup()
+        {
+            var ioc = Bootstrapper.Wire();
+            _commandHandler = ioc.Resolve<ICommandHandler>();
+        }
+
+        private static void Repl()
+        {
+            var input = string.Empty;
+            while (input != "exit")
+            {
+                Console.WriteLine("Enter command (\"exit\" to exit):");
+                input = Console.ReadLine();
+
+                if (!string.IsNullOrEmpty(input))
+                {
+                    var args = input.Split(' ');
+                    Run(args);
+                }
+            }
+        }
+
+        private static void Run(IReadOnlyCollection<string> args)
+        {
+            if (!args.Any())
+            {
+                return;
+            }
+
+            var command = args.ElementAt(0);
+
+            _commandHandler.Handle(command, args.ToArray());
+        }
+
+        private static bool IsDebug()
+        {
+#if DEBUG
+            return true;
+#endif
+            return false;
         }
     }
 }

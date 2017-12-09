@@ -1,4 +1,6 @@
-﻿namespace Toffee
+﻿using Toffee.Infrastructure;
+
+namespace Toffee
 {
     public class LinkFromCommand : ICommand
     {

@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Toffee
+namespace Toffee.Infrastructure
 {
     public class Filesystem : IFilesystem
     {

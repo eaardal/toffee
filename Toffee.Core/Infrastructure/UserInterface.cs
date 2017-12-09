@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Toffee
+namespace Toffee.Infrastructure
 {
     class UserInterface : IUserInterface
     {

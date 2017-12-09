@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Toffee.Infrastructure;
 
 namespace Toffee
 {
@@ -69,7 +70,7 @@ namespace Toffee
             var appDataDirectory = _environment.GetAppDataDirectoryPath();
             var toffeeAppDataDirectory = Path.Combine(appDataDirectory, "Toffee");
 
-            if (_filesystem.DirectoryExists(toffeeAppDataDirectory))
+            if (!_filesystem.DirectoryExists(toffeeAppDataDirectory))
             {
                 _filesystem.CreateDirectory(toffeeAppDataDirectory);
             }
