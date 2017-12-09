@@ -3,10 +3,14 @@
     public class LinkFromCommand : ICommand
     {
         private readonly ICommandArgsParser<LinkFromCommandArgs> _commandArgsParser;
+        private readonly ILinkRegistryFile _linkRegistryFile;
+        private readonly IUserInterface _ui;
 
-        public LinkFromCommand(ICommandArgsParser<LinkFromCommandArgs> commandArgsParser)
+        public LinkFromCommand(ICommandArgsParser<LinkFromCommandArgs> commandArgsParser, ILinkRegistryFile linkRegistryFile, IUserInterface ui)
         {
             _commandArgsParser = commandArgsParser;
+            _linkRegistryFile = linkRegistryFile;
+            _ui = ui;
         }
 
         public bool CanHandle(string command)
@@ -16,16 +20,20 @@
 
         public int Handle(string[] args)
         {
-            if (!_commandArgsParser.IsValid(args))
+            (var isValid, var reason) = _commandArgsParser.IsValid(args);
+
+            if (isValid)
             {
-                return ExitCodes.Error;
+                var command = _commandArgsParser.Parse(args);
+
+                _linkRegistryFile.SaveOrUpdateLink(command.LinkName, command.SourceDirectoryPath);
+
+                return ExitCodes.Success;
             }
 
-            var command = _commandArgsParser.Parse(args);
+            _ui.WriteLineError(reason);
 
-            
-
-            return ExitCodes.Success;
+            return ExitCodes.Error;
         }
     }
 }

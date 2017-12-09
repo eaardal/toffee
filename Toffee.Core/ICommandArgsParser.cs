@@ -2,7 +2,7 @@
 {
     public interface ICommandArgsParser<out TArgs>
     {
-        bool IsValid(string[] args);
+        (bool isValid, string reason) IsValid(string[] args);
         TArgs Parse(string[] args);
     }
 }

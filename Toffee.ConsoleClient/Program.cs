@@ -7,7 +7,7 @@ namespace Toffee.ConsoleClient
     {
         static void Main(string[] args)
         {
-            /*  toffee link-from={path-bin-debug} as={link-name} - Lagrer path til bin/debug mappen i prosjektet man vil linke til
+            /*  toffee link-from src={path-bin-debug} as={link-name} - Lagrer path til bin/debug mappen i prosjektet man vil linke til
              *    
              *      1. Lagre path til bin/debug i en fil
              *      

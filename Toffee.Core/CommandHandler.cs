@@ -16,7 +16,7 @@ namespace Toffee
 
         public void Handle(string command, string[] commandArgs)
         {
-            foreach (var commandHandler in Enumerable.Where<ICommand>(_commands, c => c.CanHandle(command)))
+            foreach (var commandHandler in _commands.Where(c => c.CanHandle(command)))
             {
                 commandHandler.Handle(commandArgs);
             }
