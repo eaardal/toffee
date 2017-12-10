@@ -125,7 +125,7 @@ namespace Toffee
         {
             var destinationDirectoryPath = args[1].Split('=')[1];
             var linkName = args[2].Split('=')[1];
-            var dlls = args[3].Split('=')[1].Split(',').Select(d => d.EndsWith(".dll") ? d.Substring(0, d.Length - 4) : d);
+            var dlls = args[3].Split('=')[1].Split(',').Select(d => d.EndsWith(".dll") ? d.Substring(0, d.Length - 4) : d).ToArray();
 
             return new LinkToCommandArgs(destinationDirectoryPath, linkName, dlls);
         }

@@ -18,6 +18,15 @@ namespace Toffee
         {
             _filesystem = filesystem;
         }
+        
+        public bool IsDotNetFrameworkCsprojFile(string path)
+        {
+            var lines = _filesystem.ReadAllLines(path).Where(line => !string.IsNullOrEmpty(line)).ToArray();
+            var firstLineIsXmlDeclaration = lines.ElementAt(0) == "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+            var secondLineIsProjectElementWithToolsVersionAttr = lines.ElementAt(1).StartsWith("<Project ToolsVersion");
+
+            return firstLineIsXmlDeclaration && secondLineIsProjectElementWithToolsVersionAttr;
+        }
 
         public IReadOnlyCollection<ReplacementRecord> ReplaceReferencedNuGetDllsWithLinkDlls(string csprojPath, Link link, string[] dlls)
         {

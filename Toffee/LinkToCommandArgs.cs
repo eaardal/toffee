@@ -6,9 +6,9 @@ namespace Toffee
     {
         public string DestinationDirectoryPath { get; }
         public string LinkName { get; }
-        public IEnumerable<string> Dlls { get; }
+        public string[] Dlls { get; }
 
-        public LinkToCommandArgs(string destinationDirectoryPath, string linkName, IEnumerable<string> dlls)
+        public LinkToCommandArgs(string destinationDirectoryPath, string linkName, string[] dlls)
         {
             DestinationDirectoryPath = destinationDirectoryPath;
             LinkName = linkName;

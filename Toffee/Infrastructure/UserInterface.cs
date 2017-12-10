@@ -33,18 +33,33 @@ namespace Toffee.Infrastructure
 
         public void End()
         {
-            Console.Write("\n");
+            Console.Write(Environment.NewLine);
         }
 
         public IUserInterface NewLine()
         {
-            Console.Write("\n");
+            Console.Write(Environment.NewLine);
             return this;
         }
 
         public IUserInterface Indent()
         {
             Console.Write("  ");
+            return this;
+        }
+
+        public void WriteLineWarning(string text)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(text);
+            Console.ResetColor();
+        }
+
+        public IUserInterface WriteQuoted(string text, ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.Write($"\"{text}\"");
+            Console.ResetColor();
             return this;
         }
     }

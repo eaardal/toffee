@@ -11,5 +11,7 @@ namespace Toffee.Infrastructure
         void End();
         IUserInterface NewLine();
         IUserInterface Indent();
+        void WriteLineWarning(string text);
+        IUserInterface WriteQuoted(string text, ConsoleColor color);
     }
 }

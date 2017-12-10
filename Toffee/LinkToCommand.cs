@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using Toffee.Infrastructure;
 
@@ -49,47 +50,18 @@ namespace Toffee
             try
             {
                 var command = _commandArgsParser.Parse(args);
+
                 var link = _linkRegistryFile.GetLink(command.LinkName);
 
                 var csprojs = _filesystem.GetFilesByExtensionRecursively(command.DestinationDirectoryPath, "csproj");
 
                 foreach (var csproj in csprojs)
                 {
-                    _ui.Write("Inspecting ", ConsoleColor.DarkCyan)
-                       .Write($"{csproj.FullName}{Environment.NewLine}", ConsoleColor.Cyan);
+                    PrintInspectingTextToUi(csproj);
 
-                    var replacementRecords = _netFxCsProj.ReplaceReferencedNuGetDllsWithLinkDlls(csproj.FullName, link, command.Dlls.ToArray());
+                    if (IsUnrecognizedProjectType(csproj)) continue;
 
-                    if (replacementRecords.Any())
-                    {
-                        foreach (var record in replacementRecords)
-                        {
-                            _ui.Indent()
-                                .Write("Replaced ", ConsoleColor.DarkGreen)
-                                .Write($"\"{record.OriginalReferenceElement}\"", ConsoleColor.Green)
-                                .NewLine()
-                                .Indent()
-                                .Write("With ", ConsoleColor.DarkGreen)
-                                .Write($"\"{record.NewReferenceElement}\"", ConsoleColor.Green)
-                                .NewLine()
-                                .Indent()
-                                .Write("Replaced ", ConsoleColor.DarkGreen)
-                                .Write($"\"{record.OriginalHintPathElement}\"", ConsoleColor.Green)
-                                .NewLine()
-                                .Indent()
-                                .Write("With ", ConsoleColor.DarkGreen)
-                                .Write($"\"{record.NewHintPathElement}\"", ConsoleColor.Green)
-                                .End();
-                        }
-
-                        _linkFile.WriteReplacedDlls(link.LinkName, replacementRecords, csproj.FullName);
-                    }
-                    else
-                    {
-                        _ui.Indent()
-                           .Write("No changes", ConsoleColor.DarkGray)
-                           .End();
-                    }
+                    ReplaceProjectReferences(csproj, link, command);
                 }
 
                 return ExitCodes.Success;
@@ -100,6 +72,71 @@ namespace Toffee
 
                 return ExitCodes.Error;
             }
+        }
+
+        private void ReplaceProjectReferences(FileInfo csproj, Link link, LinkToCommandArgs command)
+        {
+            var replacementRecords =
+                _netFxCsProj.ReplaceReferencedNuGetDllsWithLinkDlls(csproj.FullName, link, command.Dlls);
+
+            if (replacementRecords.Any())
+            {
+                foreach (var record in replacementRecords)
+                {
+                    PrintReplacementToUi(record);
+                }
+
+                _linkFile.WriteReplacedDlls(link.LinkName, replacementRecords, csproj.FullName);
+            }
+            else
+            {
+                _ui.Indent()
+                    .Write("No changes", ConsoleColor.DarkGray)
+                    .End();
+            }
+        }
+
+        private void PrintReplacementToUi(ReplacementRecord record)
+        {
+            _ui.Indent()
+                .Write("Replaced ", ConsoleColor.DarkGreen)
+                .WriteQuoted(record.OriginalReferenceElement, ConsoleColor.Green)
+                .NewLine()
+                .Indent()
+                .Write("With ", ConsoleColor.DarkGreen)
+                .WriteQuoted(record.NewReferenceElement, ConsoleColor.Green)
+                .NewLine()
+                .Indent()
+                .Write("Replaced ", ConsoleColor.DarkGreen)
+                .WriteQuoted(record.OriginalHintPathElement, ConsoleColor.Green)
+                .NewLine()
+                .Indent()
+                .Write("With ", ConsoleColor.DarkGreen)
+                .WriteQuoted(record.NewHintPathElement, ConsoleColor.Green)
+                .End();
+        }
+
+        private bool IsUnrecognizedProjectType(FileInfo csproj)
+        {
+            var isDotNetFrameworkProject = _netFxCsProj.IsDotNetFrameworkCsprojFile(csproj.FullName);
+
+            if (!isDotNetFrameworkProject)
+            {
+                _ui.Indent()
+                    .Write("Project type not recognized. For now, only full .NET Framework projects are supported. Skipping...",
+                        ConsoleColor.DarkYellow)
+                    .End();
+
+                return true;
+            }
+            return false;
+        }
+
+        private void PrintInspectingTextToUi(FileInfo csproj)
+        {
+            _ui.Write("Inspecting ", ConsoleColor.DarkCyan)
+                .WriteQuoted(csproj.Name, ConsoleColor.Cyan)
+                .End();
         }
     }
 }
