@@ -31,6 +31,8 @@ Name of the link pointing to the `src` directory.
 as=foo-project
 ```
 
+> Links are stored in `%appdata%\Toffee\LinkRegistry.csv`
+
 ## `link-to`
 
 ```
@@ -42,8 +44,8 @@ $ toffee link-to dest={path} link={link-name} using={dlls}
 #### `dest`
 
 Path to the project directory where you want to use the DLL's from a link you've
-made, instead of the original NuGet reference. Typically a git root directory or
-the same directory your `.sln` lives.
+made, instead of the original NuGet reference. Typically the project's git root
+directory, or the same directory your `.sln` lives.
 
 **Example**
 
