@@ -32,8 +32,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <!-- Line below was replaced by Toffee at 10.12.2017 13:59:46. Original line: <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL"> -->
+    <Reference Include="Newtonsoft.Json, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <!-- Line below was replaced by Toffee at 10.12.2017 13:59:46. Original line: <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath> -->
+      <HintPath>C:\dev\git\eaardal\toffee\Playground\SourceLib\Newtonsoft.Json\bin\Debug\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

@@ -28,6 +28,61 @@ namespace Toffee
             return firstLineIsXmlDeclaration && secondLineIsProjectElementWithToolsVersionAttr;
         }
 
+        public IReadOnlyCollection<ReplacementRecord> ReplaceLinkedDllsWithOriginalNuGetDlls(string csprojPath)
+        {
+            var replacedLines = new List<ReplacementRecord>();
+
+            var lines = _filesystem.ReadAllLines(csprojPath).ToArray();
+
+            var linesCopy = new List<string>();
+
+            for (var i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i];
+
+                if (IsEndOfFile(i, lines))
+                {
+                    linesCopy.Add(line);
+                    continue;
+                }
+                
+                var isCommentForReplacedReference = IsCommentForReplacedReference(line);
+
+                if (isCommentForReplacedReference)
+                {
+                    var replacementRecords = new ReplacementRecord();
+                    
+                    var originalReference = ExtractOriginalReference(line);
+                    linesCopy.Add(originalReference);
+
+                    replacementRecords.OriginalReferenceElement
+
+                    i++;
+                }
+                else
+                {
+                    linesCopy.Add(line);
+                }
+            }
+
+            if (replacedLines.Any())
+            {
+                _filesystem.WriteAllLines(csprojPath, linesCopy);
+            }
+
+            return replacedLines;
+        }
+
+        private static string ExtractOriginalReference(string line)
+        {
+            return line.Split("Original line:")[1].Trim();
+        }
+
+        private static bool IsCommentForReplacedReference(string line)
+        {
+            return line.TrimStart().StartsWith("<!-- Line below was replaced by Toffee");
+        }
+
         public IReadOnlyCollection<ReplacementRecord> ReplaceReferencedNuGetDllsWithLinkDlls(string csprojPath, Link link, string[] dlls)
         {
             var replacedLines = new List<ReplacementRecord>();

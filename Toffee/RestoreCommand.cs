@@ -1,44 +1,41 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Toffee.Infrastructure;
 
 namespace Toffee
 {
-    public class LinkToCommand : ICommand
+    public class RestoreCommand : ICommand
     {
-        private readonly ICommandArgsParser<LinkToCommandArgs> _commandArgsParser;
-        private readonly ILinkRegistryFile _linkRegistryFile;
-        private readonly ILinkMapFile _linkFile;
-        private readonly IFilesystem _filesystem;
+        private readonly ICommandArgsParser<RestoreCommandArgs> _restoreCommandArgsParser;
         private readonly INetFxCsproj _netFxCsproj;
         private readonly IUserInterface _ui;
+        private readonly IFilesystem _filesystem;
 
-        public LinkToCommand(
-            ICommandArgsParser<LinkToCommandArgs> commandArgsParser, 
-            ILinkRegistryFile linkRegistryFile,
-            ILinkMapFile linkFile,
-            IFilesystem filesystem, 
-            INetFxCsproj netFxCsproj, 
-            IUserInterface ui
-            )
+        public RestoreCommand(ICommandArgsParser<RestoreCommandArgs> restoreCommandArgsParser, INetFxCsproj netFxCsproj, IUserInterface ui, IFilesystem filesystem)
         {
-            _commandArgsParser = commandArgsParser;
-            _linkRegistryFile = linkRegistryFile;
-            _linkFile = linkFile;
-            _filesystem = filesystem;
+            _restoreCommandArgsParser = restoreCommandArgsParser;
             _netFxCsproj = netFxCsproj;
             _ui = ui;
+            _filesystem = filesystem;
         }
 
         public bool CanExecute(string command)
         {
-            return command == "link-to";
+            return command == "restore";
         }
 
         public int Execute(string[] args)
         {
-            (var isValid, var reason) = _commandArgsParser.IsValid(args);
+            /*
+             *  toffee restore dest={path} all
+             *  toffee restore dest={path} link={link-name}
+             *  
+             */
+
+            (var isValid, var reason) = _restoreCommandArgsParser.IsValid(args);
 
             if (!isValid)
             {
@@ -49,9 +46,7 @@ namespace Toffee
 
             try
             {
-                var command = _commandArgsParser.Parse(args);
-
-                var link = _linkRegistryFile.GetLink(command.LinkName);
+                var command = _restoreCommandArgsParser.Parse(args);
 
                 var csprojs = _filesystem.GetFilesByExtensionRecursively(command.DestinationDirectoryPath, "csproj");
 
@@ -61,10 +56,25 @@ namespace Toffee
 
                     if (IsUnrecognizedProjectType(csproj)) continue;
 
-                    ReplaceProjectReferences(csproj, link, command);
-                }
+                    var replacementRecords =
+                        _netFxCsproj.ReplaceLinkedDllsWithOriginalNuGetDlls(csproj.FullName);
 
-                return ExitCodes.Success;
+                    if (replacementRecords.Any())
+                    {
+                        foreach (var record in replacementRecords)
+                        {
+                            PrintReplacementToUi(record);
+                        }
+
+                        //_linkFile.WriteReplacementRecords(link.LinkName, replacementRecords, csproj.FullName);
+                    }
+                    else
+                    {
+                        _ui.Indent()
+                            .Write("No changes", ConsoleColor.DarkGray)
+                            .End();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -72,28 +82,13 @@ namespace Toffee
 
                 return ExitCodes.Error;
             }
+
+            return ExitCodes.Success;
         }
 
         private void ReplaceProjectReferences(FileInfo csproj, Link link, LinkToCommandArgs command)
         {
-            var replacementRecords =
-                _netFxCsproj.ReplaceReferencedNuGetDllsWithLinkDlls(csproj.FullName, link, command.Dlls);
-
-            if (replacementRecords.Any())
-            {
-                foreach (var record in replacementRecords)
-                {
-                    PrintReplacementToUi(record);
-                }
-
-                _linkFile.WriteReplacementRecords(link.LinkName, replacementRecords, command.DestinationDirectoryPath, csproj.FullName);
-            }
-            else
-            {
-                _ui.Indent()
-                    .Write("No changes", ConsoleColor.DarkGray)
-                    .End();
-            }
+            
         }
 
         private void PrintReplacementToUi(ReplacementRecord record)
@@ -115,7 +110,7 @@ namespace Toffee
                 .WriteQuoted(record.NewHintPathElement, ConsoleColor.Green)
                 .End();
         }
-
+        
         private bool IsUnrecognizedProjectType(FileInfo csproj)
         {
             var isDotNetFrameworkProject = _netFxCsproj.IsDotNetFrameworkCsprojFile(csproj.FullName);
