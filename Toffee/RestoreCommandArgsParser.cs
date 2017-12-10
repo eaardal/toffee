@@ -17,6 +17,11 @@ namespace Toffee
 
         public (bool isValid, string reason) IsValid(string[] args)
         {
+            if (args.Length != 2)
+            {
+                return (false, "Invalid args. Syntax for the \"restore\" command is: \"restore dest={path}\"");
+            }
+
             var command = args[0];
 
             if (command != "restore")
@@ -48,41 +53,41 @@ namespace Toffee
                 return (false, "Path to destination directory does not exist. Remember to wrap the path in double quotes if it contains spaces.");
             }
 
-            var linkNameArg = args[2];
+            //var linkNameArg = args[2];
 
-            if (string.IsNullOrEmpty(linkNameArg))
-            {
-                return (false, "Link name was not set");
-            }
+            //if (string.IsNullOrEmpty(linkNameArg))
+            //{
+            //    return (false, "Link name was not set");
+            //}
 
-            if (linkNameArg != "all")
-            {
-                var linkNameParts = linkNameArg.Split('=');
+            //if (linkNameArg != "all")
+            //{
+            //    var linkNameParts = linkNameArg.Split('=');
 
-                if (linkNameParts.Length != 2)
-                {
-                    return (false, "Link name was not given correctly. It should be link={link-name}. Link name should not contain spaces and be lower case");
-                }
+            //    if (linkNameParts.Length != 2)
+            //    {
+            //        return (false, "Link name was not given correctly. It should be link={link-name}. Link name should not contain spaces and be lower case");
+            //    }
 
-                if (linkNameParts[0] != "link")
-                {
-                    return (false, "Link name was not given correctly. It should be link={link-name}. Could not find the \"link\"-part");
-                }
+            //    if (linkNameParts[0] != "link")
+            //    {
+            //        return (false, "Link name was not given correctly. It should be link={link-name}. Could not find the \"link\"-part");
+            //    }
 
-                if (linkNameParts[1].Contains(" "))
-                {
-                    return (false, "Link name can not contain spaces");
-                }
+            //    if (linkNameParts[1].Contains(" "))
+            //    {
+            //        return (false, "Link name can not contain spaces");
+            //    }
 
-                var linkName = linkNameParts[1];
+            //    var linkName = linkNameParts[1];
 
-                (var foundLink, var _) = _linkRegistryFile.TryGetLink(linkName);
+            //    (var foundLink, var _) = _linkRegistryFile.TryGetLink(linkName);
 
-                if (!foundLink)
-                {
-                    return (false, $"The link \"{linkName}\" does not exist in the registry");
-                }
-            }
+            //    if (!foundLink)
+            //    {
+            //        return (false, $"The link \"{linkName}\" does not exist in the registry");
+            //    }
+            //}
 
             return (true, null);
         }
@@ -90,9 +95,9 @@ namespace Toffee
         public RestoreCommandArgs Parse(string[] args)
         {
             var destinationDirectoryPath = args[1].Split('=')[1];
-            (var links, var allLinks) = ParseLinksToRestore(args);
+            //(var links, var allLinks) = ParseLinksToRestore(args);
 
-            return new RestoreCommandArgs(destinationDirectoryPath, links, allLinks);
+            return new RestoreCommandArgs(destinationDirectoryPath, new List<string>(), true);
         }
 
         private (IReadOnlyCollection<string> links, bool allLinks) ParseLinksToRestore(string[] args)

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using Serilog;
 using Toffee.Infrastructure;
 
 namespace Toffee
@@ -13,13 +12,21 @@ namespace Toffee
         private readonly INetFxCsproj _netFxCsproj;
         private readonly IUserInterface _ui;
         private readonly IFilesystem _filesystem;
+        private readonly ILogger _logger;
 
-        public RestoreCommand(ICommandArgsParser<RestoreCommandArgs> restoreCommandArgsParser, INetFxCsproj netFxCsproj, IUserInterface ui, IFilesystem filesystem)
+        public RestoreCommand(
+            ICommandArgsParser<RestoreCommandArgs> restoreCommandArgsParser,
+            INetFxCsproj netFxCsproj,
+            IUserInterface ui,
+            IFilesystem filesystem,
+            ILogger logger
+            )
         {
             _restoreCommandArgsParser = restoreCommandArgsParser;
             _netFxCsproj = netFxCsproj;
             _ui = ui;
             _filesystem = filesystem;
+            _logger = logger;
         }
 
         public bool CanExecute(string command)
@@ -29,21 +36,28 @@ namespace Toffee
 
         public int Execute(string[] args)
         {
-            /*
-             *  toffee restore dest={path} all
-             *  toffee restore dest={path} link={link-name}
-             *  
-             */
-
-            (var isValid, var reason) = _restoreCommandArgsParser.IsValid(args);
-
-            if (!isValid)
+            try
             {
-                _ui.WriteLineError(reason);
+                (var isValid, var reason) = _restoreCommandArgsParser.IsValid(args);
+
+                if (!isValid)
+                {
+                    _ui.WriteLineError(reason);
+                    PrintDone();
+
+                    return ExitCodes.Error;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Error occurred while validating the arguments for {nameof(RestoreCommand)}");
+
+                _ui.WriteLineError(ex.Message);
+                PrintDone();
 
                 return ExitCodes.Error;
             }
-
+            
             try
             {
                 var command = _restoreCommandArgsParser.Parse(args);
@@ -65,8 +79,6 @@ namespace Toffee
                         {
                             PrintReplacementToUi(record);
                         }
-
-                        //_linkFile.WriteReplacementRecords(link.LinkName, replacementRecords, csproj.FullName);
                     }
                     else
                     {
@@ -75,39 +87,36 @@ namespace Toffee
                             .End();
                     }
                 }
+
+                PrintDone();
+
+                return ExitCodes.Success;
             }
             catch (Exception ex)
             {
+                _logger.Error(ex, $"Error occurred while executing {nameof(RestoreCommand)}");
+
                 _ui.WriteLineError(ex.Message);
+                PrintDone();
 
                 return ExitCodes.Error;
             }
-
-            return ExitCodes.Success;
         }
 
-        private void ReplaceProjectReferences(FileInfo csproj, Link link, LinkToCommandArgs command)
+        private void PrintDone()
         {
-            
+            _ui.Write("Done", ConsoleColor.White).End();
         }
 
         private void PrintReplacementToUi(ReplacementRecord record)
         {
             _ui.Indent()
                 .Write("Replaced ", ConsoleColor.DarkGreen)
-                .WriteQuoted(record.OriginalReferenceElement, ConsoleColor.Green)
+                .WriteQuoted(record.Before, ConsoleColor.Green)
                 .NewLine()
                 .Indent()
                 .Write("With ", ConsoleColor.DarkGreen)
-                .WriteQuoted(record.NewReferenceElement, ConsoleColor.Green)
-                .NewLine()
-                .Indent()
-                .Write("Replaced ", ConsoleColor.DarkGreen)
-                .WriteQuoted(record.OriginalHintPathElement, ConsoleColor.Green)
-                .NewLine()
-                .Indent()
-                .Write("With ", ConsoleColor.DarkGreen)
-                .WriteQuoted(record.NewHintPathElement, ConsoleColor.Green)
+                .WriteQuoted(record.After, ConsoleColor.Green)
                 .End();
         }
         

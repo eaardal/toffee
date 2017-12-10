@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Serilog;
 using Toffee.Infrastructure;
 
 namespace Toffee
@@ -13,15 +14,24 @@ namespace Toffee
         private const string Indentation4 = "    ";
 
         private readonly IFilesystem _filesystem;
+        private readonly ILogger _logger;
 
-        public NetFxCsproj(IFilesystem filesystem)
+        public NetFxCsproj(IFilesystem filesystem, ILogger logger)
         {
             _filesystem = filesystem;
+            _logger = logger;
         }
         
         public bool IsDotNetFrameworkCsprojFile(string path)
         {
             var lines = _filesystem.ReadAllLines(path).Where(line => !string.IsNullOrEmpty(line)).ToArray();
+
+            if (lines.Length < 2)
+            {
+                _logger.Warning("Csproj found at {Path} seems malformed. {Lines}", path, lines);
+                return false;
+            }
+
             var firstLineIsXmlDeclaration = lines.ElementAt(0) == "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
             var secondLineIsProjectElementWithToolsVersionAttr = lines.ElementAt(1).StartsWith("<Project ToolsVersion");
 
@@ -45,17 +55,17 @@ namespace Toffee
                     linesCopy.Add(line);
                     continue;
                 }
+
+                var nextLine = lines[i + 1];
                 
                 var isCommentForReplacedReference = IsCommentForReplacedReference(line);
 
                 if (isCommentForReplacedReference)
                 {
-                    var replacementRecords = new ReplacementRecord();
-                    
                     var originalReference = ExtractOriginalReference(line);
-                    linesCopy.Add(originalReference);
-
-                    replacementRecords.OriginalReferenceElement
+                    linesCopy.Add($"{ExtractOriginalIndentation(originalReference)}{originalReference}");
+                    
+                    replacedLines.Add(new ReplacementRecord(nextLine.Trim(), originalReference));
 
                     i++;
                 }
@@ -73,9 +83,27 @@ namespace Toffee
             return replacedLines;
         }
 
+        private static string ExtractOriginalIndentation(string originalLine)
+        {
+            if (originalLine.StartsWith("<Reference"))
+            {
+                return Indentation4;
+            }
+
+            if (originalLine.StartsWith("<HintPath>"))
+            {
+                return Indentation6;
+            }
+
+            return Indentation4;
+        }
+
         private static string ExtractOriginalReference(string line)
         {
-            return line.Split("Original line:")[1].Trim();
+            var lineParts = line.Split("Original line:");
+            var originalLine = lineParts[1].Trim();
+            var originalLineWithoutEndingComment = originalLine.Substring(0, originalLine.Length - 4);
+            return originalLineWithoutEndingComment;
         }
 
         private static bool IsCommentForReplacedReference(string line)
@@ -109,8 +137,6 @@ namespace Toffee
 
                 if (isReference && isNextLineHintPath)
                 {
-                    var replacementRecord = new ReplacementRecord();
-
                     // Write comment above the <Reference Inclue=""> line
                     var commentForReplacedReferenceLine = $"{Indentation4}<!-- Line below was replaced by Toffee at {DateTime.Now:dd.MM.yyyy HH:mm:ss}. Original line: {line.Trim()} -->";
                     linesCopy.Add(commentForReplacedReferenceLine);
@@ -119,8 +145,7 @@ namespace Toffee
                     var replacedReferenceLine = ConstructReferenceLineWithLinkedDllAssemblyInfo(link, dll);
                     linesCopy.Add(replacedReferenceLine);
 
-                    replacementRecord.OriginalReferenceElement = line.Trim();
-                    replacementRecord.NewReferenceElement = replacedReferenceLine.Trim();
+                    replacedLines.Add(new ReplacementRecord(line.Trim(), replacedReferenceLine.Trim()));
 
                     // Write comment above the next <HintPath> line
                     var commentForReplacedHintPathLine = $"{Indentation6}<!-- Line below was replaced by Toffee at {DateTime.Now:dd.MM.yyyy HH:mm:ss}. Original line: {nextLine.Trim()} -->";
@@ -130,10 +155,7 @@ namespace Toffee
                     var replacedHintPathLine = ConstructHintPathLineWithLinkedDll(link, dll);
                     linesCopy.Add(replacedHintPathLine);
 
-                    replacementRecord.OriginalHintPathElement = nextLine.Trim();
-                    replacementRecord.NewHintPathElement = replacedHintPathLine.Trim();
-                    
-                    replacedLines.Add(replacementRecord);
+                    replacedLines.Add(new ReplacementRecord(nextLine.Trim(), replacedHintPathLine.Trim()));
 
                     i++;
                 }

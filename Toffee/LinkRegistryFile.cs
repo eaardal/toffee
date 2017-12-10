@@ -97,7 +97,7 @@ namespace Toffee
 
             var lines = _filesystem.ReadAllLines(filePath);
 
-            return lines.Select(Link.ParseFromCsv);
+            return lines.Where(line => !string.IsNullOrEmpty(line)).Select(Link.ParseFromCsv);
         }
 
         public Link GetLink(string linkName)

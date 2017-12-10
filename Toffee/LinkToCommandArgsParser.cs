@@ -18,6 +18,11 @@ namespace Toffee
 
         public (bool isValid, string reason) IsValid(string[] args)
         {
+            if (args.Length != 4)
+            {
+                return (false, "Invalid args. Syntax for the \"link-to\" command is: \"link-to dest={path} link={link-name} using={comma-separated-list-of-dlls-with-no-spaces}\"");
+            }
+
             var command = args[0];
 
             if (command != "link-to")
@@ -60,12 +65,12 @@ namespace Toffee
 
             if (linkNameParts.Length != 2)
             {
-                return (false, "Link name was not given correctly. It should be from={link-name}. Link name should not contain spaces and be lower case");
+                return (false, "Link name was not given correctly. It should be link={link-name}. Link name should not contain spaces and be lower case");
             }
 
-            if (linkNameParts[0] != "from")
+            if (linkNameParts[0] != "link")
             {
-                return (false, "Link name was not given correctly. It should be from={link-name}. Could not find the \"from\"-part");
+                return (false, "Link name was not given correctly. It should be link={link-name}. Could not find the \"link\"-part");
             }
 
             if (linkNameParts[1].Contains(" "))
@@ -112,9 +117,11 @@ namespace Toffee
             {
                 var fullDllPath = Path.Combine(link.SourceDirectoryPath, dll);
 
-                if (!_filesystem.FileExists($"{fullDllPath}.dll"))
+                var normalizedDllPath = fullDllPath.EndsWith(".dll") ? fullDllPath : $"{fullDllPath}.dll";
+
+                if (!_filesystem.FileExists($"{normalizedDllPath}"))
                 {
-                    return (false, $"The DLL \"{fullDllPath}\" does not exist. The path was constructed by combining the link's ({linkName}) Source Directory ({link.SourceDirectoryPath}) and the entered DLL {dll}. One of these values must be adjusted to make a valid path");
+                    return (false, $"The DLL \"{normalizedDllPath}\" does not exist. The path was constructed by combining the link's ({linkName}) Source Directory ({link.SourceDirectoryPath}) and the entered DLL {dll}. One of these values must be adjusted to make a valid path");
                 }
             }
 

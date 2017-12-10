@@ -1,4 +1,5 @@
 ﻿using Peon.Infrastructure.DependencyInjection;
+using Serilog;
 
 namespace Toffee.Infrastructure.Startup
 {
@@ -6,6 +7,20 @@ namespace Toffee.Infrastructure.Startup
     {
         public static TinyIoCContainer Wire()
         {
+            var loggerConfiguration = new LoggerConfiguration();
+
+            loggerConfiguration
+                .MinimumLevel.Information()
+                .WriteTo.RollingFile(@"Logs\Log-{Date}.txt");
+
+            if (BuildConfiguration.IsDebug())
+            {
+                loggerConfiguration.WriteTo.Console().MinimumLevel.Debug();
+            }
+
+            var logger = loggerConfiguration.CreateLogger();
+            Log.Logger = logger;
+
             var ioc = TinyIoCContainer.Current;
             ioc.AutoRegister();
 
@@ -19,7 +34,9 @@ namespace Toffee.Infrastructure.Startup
             ioc.Register<ICommandArgsParser<LinkFromCommandArgs>, LinkFromCommandArgsParser>();
             ioc.Register<ICommandArgsParser<LinkToCommandArgs>, LinkToCommandArgsParser>();
             ioc.Register<ICommandArgsParser<RestoreCommandArgs>, RestoreCommandArgsParser>();
-            
+
+            ioc.Register<ILogger>(logger);
+
             return TinyIoCContainer.Current;
         }
     }

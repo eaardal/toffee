@@ -1,4 +1,5 @@
 ﻿using Moq;
+using Serilog;
 using Toffee;
 using Toffee.Infrastructure;
 
@@ -9,10 +10,11 @@ namespace Toffe.UnitTests
         public Mock<ICommandArgsParser<LinkFromCommandArgs>> CommandArgsParser { get; } = new Mock<ICommandArgsParser<LinkFromCommandArgs>>();
         public Mock<ILinkRegistryFile> LinkRegistryFile { get; } = new Mock<ILinkRegistryFile>();
         public Mock<IUserInterface> UserInterface { get; } = new Mock<IUserInterface>();
+        public Mock<ILogger> Logger { get; } = new Mock<ILogger>();
 
         public LinkFromCommand CreateSut()
         {
-            return new LinkFromCommand(CommandArgsParser.Object, LinkRegistryFile.Object, UserInterface.Object);
+            return new LinkFromCommand(CommandArgsParser.Object, LinkRegistryFile.Object, UserInterface.Object, Logger.Object);
         }
 
         public LinkFromCommandTestFixture SetupInvalidArgs()

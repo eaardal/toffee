@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Serilog;
 using Toffee.Infrastructure;
 
 namespace Toffee
@@ -9,26 +10,26 @@ namespace Toffee
     {
         private readonly ICommandArgsParser<LinkToCommandArgs> _commandArgsParser;
         private readonly ILinkRegistryFile _linkRegistryFile;
-        private readonly ILinkMapFile _linkFile;
         private readonly IFilesystem _filesystem;
         private readonly INetFxCsproj _netFxCsproj;
         private readonly IUserInterface _ui;
+        private readonly ILogger _logger;
 
         public LinkToCommand(
             ICommandArgsParser<LinkToCommandArgs> commandArgsParser, 
             ILinkRegistryFile linkRegistryFile,
-            ILinkMapFile linkFile,
             IFilesystem filesystem, 
             INetFxCsproj netFxCsproj, 
-            IUserInterface ui
+            IUserInterface ui,
+            ILogger logger
             )
         {
             _commandArgsParser = commandArgsParser;
             _linkRegistryFile = linkRegistryFile;
-            _linkFile = linkFile;
             _filesystem = filesystem;
             _netFxCsproj = netFxCsproj;
             _ui = ui;
+            _logger = logger;
         }
 
         public bool CanExecute(string command)
@@ -38,15 +39,28 @@ namespace Toffee
 
         public int Execute(string[] args)
         {
-            (var isValid, var reason) = _commandArgsParser.IsValid(args);
-
-            if (!isValid)
+            try
             {
-                _ui.WriteLineError(reason);
+                (var isValid, var reason) = _commandArgsParser.IsValid(args);
+
+                if (!isValid)
+                {
+                    _ui.WriteLineError(reason);
+                    PrintDone();
+
+                    return ExitCodes.Error;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Error occurred while validating the arguments for {nameof(LinkToCommand)}");
+
+                _ui.WriteLineError(ex.Message);
+                PrintDone();
 
                 return ExitCodes.Error;
             }
-
+            
             try
             {
                 var command = _commandArgsParser.Parse(args);
@@ -64,11 +78,16 @@ namespace Toffee
                     ReplaceProjectReferences(csproj, link, command);
                 }
 
+                PrintDone();
+
                 return ExitCodes.Success;
             }
             catch (Exception ex)
             {
+                _logger.Error(ex, $"Error occurred while executing {nameof(LinkToCommand)}");
+
                 _ui.WriteLineError(ex.Message);
+                PrintDone();
 
                 return ExitCodes.Error;
             }
@@ -85,8 +104,6 @@ namespace Toffee
                 {
                     PrintReplacementToUi(record);
                 }
-
-                _linkFile.WriteReplacementRecords(link.LinkName, replacementRecords, command.DestinationDirectoryPath, csproj.FullName);
             }
             else
             {
@@ -100,19 +117,11 @@ namespace Toffee
         {
             _ui.Indent()
                 .Write("Replaced ", ConsoleColor.DarkGreen)
-                .WriteQuoted(record.OriginalReferenceElement, ConsoleColor.Green)
+                .WriteQuoted(record.Before, ConsoleColor.Green)
                 .NewLine()
                 .Indent()
                 .Write("With ", ConsoleColor.DarkGreen)
-                .WriteQuoted(record.NewReferenceElement, ConsoleColor.Green)
-                .NewLine()
-                .Indent()
-                .Write("Replaced ", ConsoleColor.DarkGreen)
-                .WriteQuoted(record.OriginalHintPathElement, ConsoleColor.Green)
-                .NewLine()
-                .Indent()
-                .Write("With ", ConsoleColor.DarkGreen)
-                .WriteQuoted(record.NewHintPathElement, ConsoleColor.Green)
+                .WriteQuoted(record.After, ConsoleColor.Green)
                 .End();
         }
 
@@ -137,6 +146,11 @@ namespace Toffee
             _ui.Write("Inspecting ", ConsoleColor.DarkCyan)
                 .WriteQuoted(csproj.Name, ConsoleColor.Cyan)
                 .End();
+        }
+
+        private void PrintDone()
+        {
+            _ui.Write("Done", ConsoleColor.White).End();
         }
     }
 }
