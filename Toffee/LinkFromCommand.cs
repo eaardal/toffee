@@ -38,6 +38,8 @@ namespace Toffee
 
                 _linkRegistryFile.InsertOrUpdateLink(command.LinkName, command.SourceDirectoryPath);
 
+                _ui.WriteLineSuccess($"Created link \"{command.LinkName}\" -> \"{command.SourceDirectoryPath}\"");
+
                 return ExitCodes.Success;
             }
             catch (Exception ex)

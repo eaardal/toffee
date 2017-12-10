@@ -55,14 +55,41 @@ namespace Toffee
 
                 foreach (var csproj in csprojs)
                 {
-                    var replacedDlls = _netFxCsProj.ReplaceReferencedNuGetDllsWithLinkDlls(csproj.FullName, link, command.Dlls.ToArray());
+                    _ui.Write("Inspecting ", ConsoleColor.DarkCyan)
+                       .Write($"{csproj.FullName}{Environment.NewLine}", ConsoleColor.Cyan);
 
-                    foreach (var replacedDll in replacedDlls)
+                    var replacementRecords = _netFxCsProj.ReplaceReferencedNuGetDllsWithLinkDlls(csproj.FullName, link, command.Dlls.ToArray());
+
+                    if (replacementRecords.Any())
                     {
-                        _ui.WriteLineSuccess($"{csproj.FullName}: Replaced \"{replacedDll.Key}\" with \"{replacedDll.Value}\"");
-                    }
+                        foreach (var record in replacementRecords)
+                        {
+                            _ui.Indent()
+                                .Write("Replaced ", ConsoleColor.DarkGreen)
+                                .Write($"\"{record.OriginalReferenceElement}\"", ConsoleColor.Green)
+                                .NewLine()
+                                .Indent()
+                                .Write("With ", ConsoleColor.DarkGreen)
+                                .Write($"\"{record.NewReferenceElement}\"", ConsoleColor.Green)
+                                .NewLine()
+                                .Indent()
+                                .Write("Replaced ", ConsoleColor.DarkGreen)
+                                .Write($"\"{record.OriginalHintPathElement}\"", ConsoleColor.Green)
+                                .NewLine()
+                                .Indent()
+                                .Write("With ", ConsoleColor.DarkGreen)
+                                .Write($"\"{record.NewHintPathElement}\"", ConsoleColor.Green)
+                                .End();
+                        }
 
-                    _linkFile.WriteReplacedDlls(link.LinkName, replacedDlls, csproj.FullName);
+                        _linkFile.WriteReplacedDlls(link.LinkName, replacementRecords, csproj.FullName);
+                    }
+                    else
+                    {
+                        _ui.Indent()
+                           .Write("No changes", ConsoleColor.DarkGray)
+                           .End();
+                    }
                 }
 
                 return ExitCodes.Success;

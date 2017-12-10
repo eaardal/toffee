@@ -11,22 +11,22 @@ namespace Toffee.Infrastructure
 
         public IEnumerable<string> ReadAllLines(string path)
         {
-            return File.ReadAllLines(path, Encoding);
+            return Retry.Operation(() => File.ReadAllLines(path, Encoding));
         }
 
         public string ReadAllText(string path)
         {
-            return File.ReadAllText(path, Encoding);
+            return Retry.Operation(() => File.ReadAllText(path, Encoding));
         }
 
         public void WriteAllLines(string path, IEnumerable<string> lines)
         {
-            File.WriteAllLines(path, lines, Encoding);
+            Retry.Operation(() => File.WriteAllLines(path, lines, Encoding));
         }
 
         public bool FileExists(string path)
         {
-            return File.Exists(path);
+            return Retry.Operation(() => File.Exists(path));
         }
 
         public bool DirectoryExists(string path)
@@ -51,12 +51,12 @@ namespace Toffee.Infrastructure
 
         public void CreateFile(string path)
         {
-            File.Create(path);
+            Retry.Operation(() => File.Create(path));
         }
 
         public void AppendLine(string filePath, string line)
         {
-            File.AppendAllLines(filePath, new []{line});
+            Retry.Operation(() => File.AppendAllLines(filePath, new []{line}));
         }
 
         public IEnumerable<FileInfo> GetFilesByExtensionRecursively(string path, string extension)
@@ -65,10 +65,15 @@ namespace Toffee.Infrastructure
 
             if (directory.Exists)
             {
-                return directory.GetFiles(extension, SearchOption.AllDirectories);
+                return directory.GetFiles($"*{extension}", SearchOption.AllDirectories);
             }
 
             throw new DirectoryNotFoundException($"The directory {path} does not exist");
+        }
+
+        public void AppendLines(string path, IEnumerable<string> lines)
+        {
+            Retry.Operation(() => File.AppendAllLines(path, lines));
         }
     }
 }

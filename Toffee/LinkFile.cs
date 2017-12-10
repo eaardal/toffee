@@ -16,20 +16,24 @@ namespace Toffee
             _filesystem = filesystem;
         }
 
-        public void WriteReplacedDlls(string linkName, Dictionary<string, string> replacedDlls, string csprojPath)
+        public void WriteReplacedDlls(string linkName, IReadOnlyCollection<ReplacementRecord> replacementRecords, string csprojPath)
         {
             var toffeeAppDataDirectoryPath = _toffeeAppDataDirectory.EnsureExists();
 
-            var linkFilePath = Path.Combine(toffeeAppDataDirectoryPath, $"link-map__{linkName}__{csprojPath}.csv");
+            var linkFilePath = Path.Combine(toffeeAppDataDirectoryPath, $"link-map__{linkName}.csv");
 
             if (!_filesystem.FileExists(linkFilePath))
             {
                 _filesystem.CreateFile(linkFilePath);
             }
 
-            var lines = replacedDlls.Select(d => $"{d.Key},{d.Value}");
+            var existingLines = _filesystem.ReadAllLines(linkFilePath).ToArray();
 
-            _filesystem.WriteAllLines(linkFilePath, lines);
+            var lines = replacementRecords
+                .Select(record => $"{csprojPath},{record.OriginalReferenceElement},{record.NewReferenceElement},{record.OriginalHintPathElement},{record.NewHintPathElement}")
+                .Where(csv => existingLines.All(line => line != csv));
+
+            _filesystem.AppendLines(linkFilePath, lines);
         }
     }
 }

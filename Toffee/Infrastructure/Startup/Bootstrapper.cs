@@ -12,9 +12,11 @@ namespace Toffee.Infrastructure.Startup
             ioc.RegisterMultiple<ICommand>(new[]
             {
                 typeof(LinkFromCommand),
+                typeof(LinkToCommand)
             });
 
             ioc.Register<ICommandArgsParser<LinkFromCommandArgs>, LinkFromCommandArgsParser>();
+            ioc.Register<ICommandArgsParser<LinkToCommandArgs>, LinkToCommandArgsParser>();
             
             return TinyIoCContainer.Current;
         }

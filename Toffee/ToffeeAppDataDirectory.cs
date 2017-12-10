@@ -5,10 +5,10 @@ namespace Toffee
 {
     class ToffeeAppDataDirectory : IToffeeAppDataDirectory
     {
-        private readonly IEnvironment _environment;
+        private readonly IEnvironmentAdapter _environment;
         private readonly IFilesystem _filesystem;
 
-        public ToffeeAppDataDirectory(IEnvironment environment, IFilesystem filesystem)
+        public ToffeeAppDataDirectory(IEnvironmentAdapter environment, IFilesystem filesystem)
         {
             _environment = environment;
             _filesystem = filesystem;

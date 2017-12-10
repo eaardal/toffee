@@ -93,12 +93,12 @@ namespace Toffee
 
             if (dllsParts.Length != 2)
             {
-                return (false, "List of dlls to link was not given correctly. It should be dlls={comma-separated-list-of-dll-names-with-no-spaces}");
+                return (false, "List of dlls to link was not given correctly. It should be using={comma-separated-list-of-dll-names-with-no-spaces}");
             }
 
-            if (dllsParts[0] != "from")
+            if (dllsParts[0] != "using")
             {
-                return (false, "List of dlls was not given correctly. It should be dlls={comma-separated-list-of-dll-names-with-no-spaces}. Could not find the \"dlls\"-part");
+                return (false, "List of dlls was not given correctly. It should be using={comma-separated-list-of-dll-names-with-no-spaces}. Could not find the \"using\"-part");
             }
 
             if (dllsParts[1].Contains(" "))
@@ -112,7 +112,7 @@ namespace Toffee
             {
                 var fullDllPath = Path.Combine(link.SourceDirectoryPath, dll);
 
-                if (!_filesystem.FileExists(fullDllPath))
+                if (!_filesystem.FileExists($"{fullDllPath}.dll"))
                 {
                     return (false, $"The DLL \"{fullDllPath}\" does not exist. The path was constructed by combining the link's ({linkName}) Source Directory ({link.SourceDirectoryPath}) and the entered DLL {dll}. One of these values must be adjusted to make a valid path");
                 }

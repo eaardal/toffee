@@ -22,5 +22,30 @@ namespace Toffee.Infrastructure
             Console.WriteLine(text);
             Console.ResetColor();
         }
+
+        public IUserInterface Write(string text, ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.Write(text);
+            Console.ResetColor();
+            return this;
+        }
+
+        public void End()
+        {
+            Console.Write("\n");
+        }
+
+        public IUserInterface NewLine()
+        {
+            Console.Write("\n");
+            return this;
+        }
+
+        public IUserInterface Indent()
+        {
+            Console.Write("  ");
+            return this;
+        }
     }
 }

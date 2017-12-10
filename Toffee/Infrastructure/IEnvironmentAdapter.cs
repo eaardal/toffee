@@ -1,6 +1,6 @@
 ﻿namespace Toffee.Infrastructure
 {
-    public interface IEnvironment
+    public interface IEnvironmentAdapter
     {
         string GetProgramDataDirectoryPath();
         string GetAppDataDirectoryPath();

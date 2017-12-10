@@ -4,6 +4,6 @@ namespace Toffee
 {
     public interface INetFxCsproj
     {
-        Dictionary<string, string> ReplaceReferencedNuGetDllsWithLinkDlls(string csprojPath, Link link, string[] dlls);
+        IReadOnlyCollection<ReplacementRecord> ReplaceReferencedNuGetDllsWithLinkDlls(string csprojPath, Link link, string[] dlls);
     }
 }
