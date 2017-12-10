@@ -81,6 +81,25 @@ complete path: `C:\projects\Foo\Foo.Project\bin\Debug\Foo.Project.dll` and
 replaced in all csprojs under the `dest` directory where `Foo.Project.dll` and
 `Abc.Project.dll` is referenced.
 
+## `restore`
+
+```
+$ toffee restore dest={path}
+```
+
+### Args
+
+#### `dest`
+
+Path to the project directory you want to restore. Typically the project's git
+root directory, or the same directory your `.sln` lives.
+
+**Example**
+
+```
+dest=C:\projects\Bar
+```
+
 ## Dev stuff
 
 ```
