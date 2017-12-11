@@ -12,30 +12,6 @@ namespace Toffee.ConsoleClient
 
         public static int Main(string[] args)
         {
-            /*  toffee link-from src={path-bin-debug} as={link-name} - Lagrer path til bin/debug mappen i prosjektet man vil linke til
-             *    
-             *      1. Lagre path til bin/debug i en fil
-             *      
-             *  toffee link-to={path-packages} from={link-name} using={dlls}
-             *  
-             *      1. Hente path til bin/debug fra fil, basert på link-name
-             *      2. Lage symlink for mappen dll'en ligger under, under packages/ mappen i solution
-             *      3. Symlinke til bin/debug
-             *  
-             *  link-from src=Spv.Logging\bin\Debug as=spv-logging
-             *  link-to dest=Betaling.Api.sln from=spv-logging using=Spv.Logging.Installer.dll,Spv.Logging.dll
-             *  
-             *      1. Finne packages mappe
-             *      2. Iterere over mappenavn og finne matcher til DLL'er
-             *      3. For hver match, lage symlink fra NuGet DLL til link-from DLL
-             *      
-             *  Alt 2
-             *  
-             *      1. Finne alle .csproj filer
-             *      2. Erstatte HintPath med path til link-from
-             *      
-             */
-
             Startup();
 
             return BuildConfiguration.IsDebug() ? Repl() : Run(args);
