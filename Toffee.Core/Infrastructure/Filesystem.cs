@@ -48,19 +48,7 @@ namespace Toffee.Core.Infrastructure
 
         public void WriteAllLines(string path, IEnumerable<string> lines)
         {
-            Retry.Operation(() =>
-            {
-                using (var stream = File.Open(path, FileMode.Open, FileAccess.Write, FileShare.Read))
-                {
-                    using (var streamWriter = new StreamWriter(stream, Encoding))
-                    {
-                        foreach (var line in lines)
-                        {
-                            streamWriter.WriteLine(line);
-                        }
-                    }
-                }
-            });
+            File.WriteAllLines(path, lines, Encoding);
         }
 
         public bool FileExists(string path)
