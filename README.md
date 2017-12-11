@@ -4,6 +4,8 @@
 
 Replaces DLL references to NuGet packages in `.csproj` files with local versions instead, to make life easier when developing NuGet packages used by other applications and libraries.
 
+[Download](https://github.com/eaardal/toffee/releases)
+
 # How to use
 
 ## `link-from`
