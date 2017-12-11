@@ -2,7 +2,7 @@
 using Shouldly;
 using Toffee.Core.Infrastructure;
 
-namespace Toffe.Core.UnitTests
+namespace Toffee.Core.UnitTests
 {
     [TestClass]
     public class LinkFromCommandTests

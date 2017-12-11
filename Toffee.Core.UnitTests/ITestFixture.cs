@@ -1,4 +1,4 @@
-﻿namespace Toffe.Core.UnitTests
+﻿namespace Toffee.Core.UnitTests
 {
     internal interface ITestFixture<T>
     {

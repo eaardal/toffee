@@ -1,9 +1,8 @@
 ﻿using Moq;
 using Serilog;
-using Toffee.Core;
 using Toffee.Core.Infrastructure;
 
-namespace Toffe.Core.UnitTests
+namespace Toffee.Core.UnitTests
 {
     internal class LinkFromCommandTestFixture : ITestFixture<LinkFromCommand>
     {

@@ -1,8 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
-using Toffee.Core;
 
-namespace Toffe.Core.UnitTests
+namespace Toffee.Core.UnitTests
 {
     [TestClass]
     public class LinkFromCommandArgsParserTests
