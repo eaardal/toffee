@@ -3,11 +3,11 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <AssemblyName>Toffee.ConsoleClient</AssemblyName>
+    <AssemblyName>toffee</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Toffee\Toffee.csproj" />
+    <ProjectReference Include="..\Toffee.Core\Toffee.Core.csproj" />
   </ItemGroup>
 
 </Project>

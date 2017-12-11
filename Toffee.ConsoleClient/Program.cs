@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using Toffee.Infrastructure;
-using Toffee.Infrastructure.Startup;
+using Toffee.Core;
+using Toffee.Core.Infrastructure;
+using Toffee.Core.Infrastructure.Startup;
 
 namespace Toffee.ConsoleClient
 {
