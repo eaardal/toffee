@@ -75,6 +75,17 @@ namespace Toffee.Core
             }
         }
 
+        public HelpText GetHelpText()
+        {
+            return new HelpText()
+                .WithCommand("link-from")
+                .WithDescription("Creates a named reference to the specified {src} folder")
+                .WithArgument("src", "Path to directory containing DLL's you want to use in another project. Typically a bin/Debug directory.")
+                .WithArgument("as", "Name of the link pointing to the src directory. Should not contain spaces.")
+                .WithExample(@"toffee link-from src=C:\ProjectA\bin\Debug as=my-link")
+                ;
+        }
+
         private void PrintDone()
         {
             _ui.Write("Done", ConsoleColor.White).End();

@@ -4,14 +4,14 @@ namespace Toffee.Core.Infrastructure
 {
     public interface IUserInterface
     {
-        void WriteLine(string text);
-        void WriteLineError(string text);
-        void WriteLineSuccess(string text);
-        IUserInterface Write(string text, ConsoleColor color);
+        IUserInterface WriteLine(string text, ConsoleColor color = ConsoleColor.Gray);
+        IUserInterface WriteLineError(string text);
+        IUserInterface WriteLineSuccess(string text);
+        IUserInterface Write(string text, ConsoleColor color = ConsoleColor.Gray);
         void End();
         IUserInterface NewLine();
         IUserInterface Indent();
-        void WriteLineWarning(string text);
+        IUserInterface WriteLineWarning(string text);
         IUserInterface WriteQuoted(string text, ConsoleColor color);
     }
 }

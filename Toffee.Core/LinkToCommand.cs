@@ -93,6 +93,18 @@ namespace Toffee.Core
             }
         }
 
+        public HelpText GetHelpText()
+        {
+            return new HelpText()
+                .WithCommand("link-to")
+                .WithDescription("Finds references to the given DLLs in all .csproj's and replaces them with DLLs found in the specified link's {src} directory.")
+                .WithArgument("dest", "Path to the project directory where you want to use the DLL's from a link you've made, instead of the original NuGet reference. Typically the project's git root directory, or the same directory your .sln lives. Csprojs are found recursively below this directory.")
+                .WithArgument("link", "Name of the link to use, as entered when using the link-from command")
+                .WithArgument("using", "Comma separated list of DLL's to replace in csprojs, with DLLs found in the named link's {src} directory instead. The .dll extension can be omitted")
+                .WithExample(@"toffee link-to dest=C:\ProjectB link=my-link using=ProjectA.dll,ProjectC.dll")
+                ;
+        }
+
         private void ReplaceProjectReferences(FileInfo csproj, Link link, LinkToCommandArgs command)
         {
             var replacementRecords =

@@ -28,7 +28,8 @@ namespace Toffee.Core.Infrastructure.Startup
             {
                 typeof(LinkFromCommand),
                 typeof(LinkToCommand),
-                typeof(RestoreCommand)
+                typeof(RestoreCommand),
+                typeof(HelpCommand)
             });
 
             ioc.Register<ICommandArgsParser<LinkFromCommandArgs>, LinkFromCommandArgsParser>();
@@ -36,7 +37,7 @@ namespace Toffee.Core.Infrastructure.Startup
             ioc.Register<ICommandArgsParser<RestoreCommandArgs>, RestoreCommandArgsParser>();
 
             ioc.Register<ILogger>(logger);
-
+            
             return TinyIoCContainer.Current;
         }
     }

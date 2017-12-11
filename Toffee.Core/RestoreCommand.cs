@@ -103,6 +103,16 @@ namespace Toffee.Core
             }
         }
 
+        public HelpText GetHelpText()
+        {
+            return new HelpText()
+                .WithCommand("restore")
+                .WithDescription("Restores DLL references to their previous paths")
+                .WithArgument("dest", "Path to the project directory you want to restore. Typically the same path as provided to the \"link-to\" command's {dest} argument")
+                .WithExample(@"toffee restore dest=C:\ProjectB")
+                ;
+        }
+
         private void PrintDone()
         {
             _ui.Write("Done", ConsoleColor.White).End();

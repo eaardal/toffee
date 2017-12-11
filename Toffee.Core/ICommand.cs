@@ -4,5 +4,6 @@
     {
         bool CanExecute(string command);
         int Execute(string[] args);
+        HelpText GetHelpText();
     }
 }
