@@ -11,46 +11,56 @@ namespace Toffee.Core.Infrastructure
 
         public IEnumerable<string> ReadAllLines(string path)
         {
-            var lines = new List<string>();
-
-            using (var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            return Retry.Operation(() =>
             {
-                using (var streamReader = new StreamReader(stream, Encoding))
-                {
-                    lines.Add(streamReader.ReadLine());
-                }
-            }
+                var lines = new List<string>();
 
-            return lines;
+                using (var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    using (var streamReader = new StreamReader(stream, Encoding))
+                    {
+                        string line;
+                        while ((line = streamReader.ReadLine()) != null)
+                        {
+                            lines.Add(line);
+                        }
+                        
+                    }
+                }
+
+                return lines;
+            });
         }
 
         public string ReadAllText(string path)
         {
-            //return Retry.Operation(() => File.ReadAllText(path, Encoding));
-            
-            using (var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            return Retry.Operation(() =>
             {
-                using (var streamReader = new StreamReader(stream, Encoding))
+                using (var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
-                    return streamReader.ReadToEnd();
+                    using (var streamReader = new StreamReader(stream, Encoding))
+                    {
+                        return streamReader.ReadToEnd();
+                    }
                 }
-            }
+            });
         }
 
         public void WriteAllLines(string path, IEnumerable<string> lines)
         {
-            //Retry.Operation(() => File.WriteAllLines(path, lines, Encoding));
-
-            using (var stream = File.Open(path, FileMode.Open, FileAccess.Write, FileShare.Read))
+            Retry.Operation(() =>
             {
-                using (var streamWriter = new StreamWriter(stream, Encoding))
+                using (var stream = File.Open(path, FileMode.Open, FileAccess.Write, FileShare.Read))
                 {
-                    foreach (var line in lines)
+                    using (var streamWriter = new StreamWriter(stream, Encoding))
                     {
-                        streamWriter.WriteLine(line);
+                        foreach (var line in lines)
+                        {
+                            streamWriter.WriteLine(line);
+                        }
                     }
                 }
-            }
+            });
         }
 
         public bool FileExists(string path)
@@ -80,20 +90,24 @@ namespace Toffee.Core.Infrastructure
 
         public void CreateFile(string path)
         {
-            Retry.Operation(() => File.Create(path));
+            Retry.Operation(() =>
+            {
+                using (File.Create(path)) { }
+            });
         }
 
         public void AppendLine(string path, string line)
         {
-            //Retry.Operation(() => File.AppendAllLines(filePath, new []{line}));
-
-            using (var stream = File.Open(path, FileMode.Open, FileAccess.Write, FileShare.Read))
+            Retry.Operation(() =>
             {
-                using (var streamWriter = new StreamWriter(stream, Encoding))
+                using (var stream = File.Open(path, FileMode.Open, FileAccess.Write, FileShare.Read))
                 {
-                    streamWriter.WriteLine(line);
+                    using (var streamWriter = new StreamWriter(stream, Encoding))
+                    {
+                        streamWriter.WriteLine(line);
+                    }
                 }
-            }
+            });
         }
 
         public IEnumerable<FileInfo> GetFilesByExtensionRecursively(string path, string extension)
@@ -110,18 +124,19 @@ namespace Toffee.Core.Infrastructure
 
         public void AppendLines(string path, IEnumerable<string> lines)
         {
-            //Retry.Operation(() => File.AppendAllLines(path, lines));
-
-            using (var stream = File.Open(path, FileMode.Open, FileAccess.Write, FileShare.Read))
+            Retry.Operation(() =>
             {
-                using (var streamWriter = new StreamWriter(stream, Encoding))
+                using (var stream = File.Open(path, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
                 {
-                    foreach (var line in lines)
+                    using (var streamWriter = new StreamWriter(stream, Encoding))
                     {
-                        streamWriter.WriteLine(line);
+                        foreach (var line in lines)
+                        {
+                            streamWriter.WriteLine(line);
+                        }
                     }
                 }
-            }
+            });
         }
     }
 }
