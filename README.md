@@ -106,7 +106,15 @@ root directory, or the same directory your `.sln` lives.
 dest=C:\projects\Bar
 ```
 
-## Dev stuff
+## `help`
+
+```
+$ toffee help
+```
+
+Displays information about each command and their arguments
+
+# Dev stuff
 
 ```
 dotnet publish Toffee.sln -c Release -f netcoreapp2.0 -r win10-x64 --self-contained
