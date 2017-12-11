@@ -1,5 +1,11 @@
 # Toffee
 
+> Npm link for .NET
+
+Replaces DLL references to NuGet packages in `.csproj` files with local versions instead, to make life easier when developing NuGet packages used by other applications and libraries.
+
+# How to use
+
 ## `link-from`
 
 ```
