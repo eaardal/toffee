@@ -39,7 +39,7 @@ namespace Toffee.Core
             return ExitCodes.Success;
         }
 
-        public (bool isValid, int exitCode) ValidateArgs<TCallee, TArgs>(ICommandArgsParser<TArgs> commandArgsParser, string[] args)
+        public bool ValidateArgs<TCallee, TArgs>(ICommandArgsParser<TArgs> commandArgsParser, string[] args)
         {
             try
             {
@@ -47,15 +47,17 @@ namespace Toffee.Core
 
                 if (!isValid)
                 {
-                    return (false, LogAndExit(reason));
+                    LogAndExit(reason);
+                    return false;
                 }
             }
             catch (Exception ex)
             {
-                return (false, LogAndExit<TCallee>(ex));
+                LogAndExit<TCallee>(ex);
+                return false;
             }
 
-            return (true, ExitCodes.Success);
+            return true;
         }
     }
 }

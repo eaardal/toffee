@@ -35,11 +35,11 @@ namespace Toffee.Core
 
         public int Execute(string[] args)
         {
-            (var isValid, var exitCode) = _commandHelper.ValidateArgs<LinkFromCommand, LinkFromCommandArgs>(_commandArgsParser, args);
+            var argsAreValid = _commandHelper.ValidateArgs<LinkFromCommand, LinkFromCommandArgs>(_commandArgsParser, args);
 
-            if (!isValid)
+            if (!argsAreValid)
             {
-                return exitCode;
+                return ExitCodes.Error;
             }
             
             try
@@ -47,8 +47,7 @@ namespace Toffee.Core
                 var command = ParseArgs(args);
 
                 CreateLink(command);
-                PrintCreatedLinkToUi(command);
-
+                
                 return _commandHelper.PrintDoneAndExitSuccessfully();
             }
             catch (Exception ex)
@@ -69,6 +68,8 @@ namespace Toffee.Core
         private void CreateLink(LinkFromCommandArgs command)
         {
             _linkRegistryFile.InsertOrUpdateLink(command.LinkName, command.SourceDirectoryPath);
+
+            PrintCreatedLinkToUi(command);
         }
 
         private LinkFromCommandArgs ParseArgs(string[] args)

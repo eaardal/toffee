@@ -52,11 +52,11 @@ namespace Toffee.Core
 
         public int Execute(string[] args)
         {
-            (var isValid, var exitCode) = _commandHelper.ValidateArgs<LinkToCommand, LinkToCommandArgs>(_commandArgsParser, args);
+            var argsAreValid = _commandHelper.ValidateArgs<LinkToCommand, LinkToCommandArgs>(_commandArgsParser, args);
 
-            if (!isValid)
+            if (!argsAreValid)
             {
-                return exitCode;
+                return ExitCodes.Error;
             }
             
             try

@@ -44,18 +44,18 @@ namespace Toffee.Core
 
         public int Execute(string[] args)
         {
-            (var isValid, var exitCode) = _commandHelper.ValidateArgs<RestoreCommand, RestoreCommandArgs>(_restoreCommandArgsParser, args);
+            var argsAreValid = _commandHelper.ValidateArgs<RestoreCommand, RestoreCommandArgs>(_restoreCommandArgsParser, args);
 
-            if (!isValid)
+            if (!argsAreValid)
             {
-                return exitCode;
+                return ExitCodes.Error;
             }
             
             try
             {
                 var command = ParseArgs(args);
 
-                ReplaceLinkedDllReferencesInProjectFiles(command);
+                RestoreLinkedDllReferencesInProjectFiles(command);
 
                 return _commandHelper.PrintDoneAndExitSuccessfully();
             }
@@ -65,7 +65,7 @@ namespace Toffee.Core
             }
         }
 
-        private void ReplaceLinkedDllReferencesInProjectFiles(RestoreCommandArgs command)
+        private void RestoreLinkedDllReferencesInProjectFiles(RestoreCommandArgs command)
         {
             var csprojs = _filesystem.GetFilesByExtensionRecursively(command.DestinationDirectoryPath, "csproj");
 
@@ -75,11 +75,11 @@ namespace Toffee.Core
 
                 if (IsUnrecognizedProjectType(csproj)) continue;
 
-                ReplaceLinkedDllReferencesInProject(csproj);
+                RestoreLinkedDllReferencesInProject(csproj);
             }
         }
 
-        private void ReplaceLinkedDllReferencesInProject(FileInfo csproj)
+        private void RestoreLinkedDllReferencesInProject(FileInfo csproj)
         {
             var replacementRecords =
                 _netFxCsproj.ReplaceLinkedDllsWithOriginalNuGetDlls(csproj.FullName);
@@ -101,8 +101,7 @@ namespace Toffee.Core
 
         private RestoreCommandArgs ParseArgs(string[] args)
         {
-            var command = _restoreCommandArgsParser.Parse(args);
-            return command;
+            return _restoreCommandArgsParser.Parse(args);
         }
         
         private void PrintReplacementToUi(ReplacementRecord record)

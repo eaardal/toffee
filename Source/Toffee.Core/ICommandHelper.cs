@@ -7,6 +7,6 @@ namespace Toffee.Core
         int LogAndExit(string reason);
         int LogAndExit<T>(Exception ex);
         int PrintDoneAndExitSuccessfully();
-        (bool isValid, int exitCode) ValidateArgs<TCallee, TArgs>(ICommandArgsParser<TArgs> commandArgsParser, string[] args);
+        bool ValidateArgs<TCallee, TArgs>(ICommandArgsParser<TArgs> commandArgsParser, string[] args);
     }
 }
