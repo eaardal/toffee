@@ -74,5 +74,12 @@ Write-Host "Created $ZipFilePath" -ForegroundColor Green
 
 git add --a
 git commit -m "Bumped version of csprojs to v$Version"
+Write-Host "Committed bumped csprojs to Git" -ForegroundColor Green
+
 git tag -a "v$Version" -m "$GitTagMessage"
+Write-Host "Tagged v$Version with message $GitTagMessage" -ForegroundColor Green
+
 git push origin $GitBranch --follow-tags
+Write-Host "Pushed tag v$Version to origin $GitBranch" -ForegroundColor Green
+
+Write-Host "Done. Remember to upload the zip file of the release from $ZipFilePath to GitHub!" -ForegroundColor Green
