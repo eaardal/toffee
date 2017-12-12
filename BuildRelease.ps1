@@ -26,7 +26,7 @@ foreach ($ProjectFile in $ProjectFiles)
 {
 	$FileContent = [System.IO.File]::ReadAllLines($ProjectFile)
 
-	$LinesCopy = New-Object System.Collections.ArrayList
+	$LinesCopy = New-Object 'System.Collections.Generic.List[String]'
 	foreach ($Line in $FileContent)
 	{
 		if ($Line -like "*<Version>*")
@@ -47,18 +47,18 @@ foreach ($ProjectFile in $ProjectFiles)
 		}
 	}
 
-	[System.IO.File]::WriteAllLines($ProjectFile, $LinesCopy)
+	#[System.IO.File]::WriteAllLines($ProjectFile, $LinesCopy)
 
-	Write-Host "Bumped version of $ProjectFile to $Version" -ForegroundColor Green
+	#Write-Host "Bumped version of $ProjectFile to $Version" -ForegroundColor Green
 }
 
-if ((git diff-index --quiet HEAD) -eq 0)
+if (git status --porcelain | Where {$_ -match '^\sM'})
 {
-	Write-Host "ja"
+	Write-Host "dirty"
 }
 else
 {
-	Write-Host "nei"
+	Write-Host "clean"
 }
 
 return
