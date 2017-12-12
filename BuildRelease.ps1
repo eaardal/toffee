@@ -9,10 +9,6 @@ if (git status --porcelain | Where {$_ -match '^\sM'})
 	Write-Host "Git has changes. Commit them first and run this script again" -ForegroundColor Red
 	return
 }
-else
-{
-	Write-Host "Git is clean" -ForegroundColor Green
-}
 
 $SourceDirectory = "$pwd\Source"
 $PublishDirectory = "$SourceDirectory\Toffee.ConsoleClient\bin\Release\netcoreapp2.0\win10-x64\publish"
