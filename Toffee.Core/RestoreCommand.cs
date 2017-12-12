@@ -32,9 +32,10 @@ namespace Toffee.Core
             new HelpText()
                 .WithCommand("restore")
                 .WithDescription("Restores DLL references to their previous paths")
-                .WithArgument("dest",
-                    "Path to the project directory you want to restore. Typically the same path as provided to the \"link-to\" command's {dest} argument")
-                .WithExample(@"toffee restore dest=C:\ProjectB");
+                .WithArgument("--dest|-d",
+                    "Path to the project directory you want to restore. Typically the same path as provided to the \"link-to\" command's {--dest|-d} argument")
+                .WithExample(@"toffee restore --dest=C:\ProjectB")
+                .WithExample(@"toffee restore -d=C:\ProjectB");
 
         public bool CanExecute(string command)
         {

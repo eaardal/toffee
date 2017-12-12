@@ -16,7 +16,7 @@ namespace Toffee.Core
         {
             if (args.Length != 3)
             {
-                return (false, "Invalid args. Syntax for the \"link-from\" command is: \"link-from --src={path} --name={link-name}\". See \"toffee link-from --help\" for more info.");
+                return (false, "Invalid args. Syntax for the \"link-from\" command is: \"link-from --src={path} --name={link-name}\"");
             }
 
             var command = args[0];

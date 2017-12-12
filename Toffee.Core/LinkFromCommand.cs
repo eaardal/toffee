@@ -22,10 +22,11 @@ namespace Toffee.Core
             new HelpText()
                 .WithCommand("link-from")
                 .WithDescription("Creates a named reference to the specified {src} folder")
-                .WithArgument("src",
+                .WithArgument("--src|-s",
                     "Path to directory containing DLL's you want to use in another project. Typically a bin/Debug directory.")
-                .WithArgument("as", "Name of the link pointing to the src directory. Should not contain spaces.")
-                .WithExample(@"toffee link-from src=C:\ProjectA\bin\Debug as=my-link");
+                .WithArgument("--name|-n", "Name of the link pointing to the src directory. Should not contain spaces.")
+                .WithExample(@"toffee link-from --src=C:\ProjectA\bin\Debug --name=my-link")
+                .WithExample(@"toffee link-from -s=C:\ProjectA\bin\Debug -n=my-link");
 
         public bool CanExecute(string command)
         {
