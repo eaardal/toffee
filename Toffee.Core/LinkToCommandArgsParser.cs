@@ -19,38 +19,43 @@ namespace Toffee.Core
         {
             if (args.Length != 4)
             {
-                return (false, "Invalid args. Syntax for the \"link-to\" command is: \"link-to dest={path} link={link-name} using={comma-separated-list-of-dlls-with-no-spaces}\"");
+                return (false, "Invalid args. Syntax for the \"link-to\" command is: \"link-to --dest={path} --link={link-name} --dlls={comma-separated-list-of-dlls-with-no-spaces}\"");
             }
 
             var command = args[0];
 
             if (command != "link-to")
             {
-                return (false, "First param was not the link-to command");
+                return (false, "First param was not the \"link-to\" command");
             }
 
             var destinationDirectoryPath = args[1];
 
             if (string.IsNullOrEmpty(destinationDirectoryPath))
             {
-                return (false, "Path to destination directory was not set");
+                return (false, "Path to {--dest|-d} directory was not set");
             }
 
             var destinationDirectoryPathParts = destinationDirectoryPath.Split('=');
 
             if (destinationDirectoryPathParts.Length != 2)
             {
-                return (false, "Path to destination director was not given correctly. It should be dest={valid-path}. Remember to wrap the path in double quotes if it contains spaces.");
+                return (false, "Path to {--dest|-d} directory was not given correctly. It should be --dest={valid-path} or -d={valid-path}. Remember to wrap the path in double quotes if it contains spaces.");
             }
 
-            if (destinationDirectoryPathParts[0] != "dest")
+            if (destinationDirectoryPathParts[0] != "--dest" && destinationDirectoryPathParts[0] != "-d")
             {
-                return (false, "Path to destination directory was not given correctly. It should be dest={valid-path}. Could not find the \"dest\"-part. Remember to wrap the path in double quotes if it contains spaces.");
+                return (false, "Path to {--dest|-d} directory was not given correctly. It should be --dest={valid-path} or -d={valid-path}. Could not find the \"--dest|-d\"-part. Remember to wrap the path in double quotes if it contains spaces.");
             }
 
             if (!_filesystem.DirectoryExists(destinationDirectoryPathParts[1]))
             {
-                return (false, "Path to destination directory does not exist. Remember to wrap the path in double quotes if it contains spaces.");
+                return (false, "Path to {--dest|-d} directory does not exist. Remember to wrap the path in double quotes if it contains spaces.");
+            }
+
+            if (!Path.IsPathRooted(destinationDirectoryPathParts[1]))
+            {
+                return (false, "The {--dest|-d} directory path must be absolute");
             }
 
             var linkNameArg = args[2];
@@ -64,12 +69,12 @@ namespace Toffee.Core
 
             if (linkNameParts.Length != 2)
             {
-                return (false, "Link name was not given correctly. It should be link={link-name}. Link name should not contain spaces and be lower case");
+                return (false, "Link name was not given correctly. It should be --link={link-name} or -l={link-name}. Link name should not contain spaces and be lower case");
             }
 
-            if (linkNameParts[0] != "link")
+            if (linkNameParts[0] != "--link" && linkNameParts[0] != "-l")
             {
-                return (false, "Link name was not given correctly. It should be link={link-name}. Could not find the \"link\"-part");
+                return (false, "Link name was not given correctly. It should be --link={link-name} or -l={link-name}. Could not find the \"--link|-l\"-part");
             }
 
             if (linkNameParts[1].Contains(" "))
@@ -90,19 +95,19 @@ namespace Toffee.Core
 
             if (string.IsNullOrEmpty(dllsArg))
             {
-                return (false, "List of dlls to link was not set. It should be dlls={comma-separated-list-of-dll-names-with-no-spaces}");
+                return (false, "List of dlls to link was not set. It should be --dlls={comma-separated-list-of-dll-names-with-no-spaces} or -D={dll-names}");
             }
 
             var dllsParts = dllsArg.Split('=');
 
             if (dllsParts.Length != 2)
             {
-                return (false, "List of dlls to link was not given correctly. It should be using={comma-separated-list-of-dll-names-with-no-spaces}");
+                return (false, "List of dlls to link was not given correctly. It should be dlls={comma-separated-list-of-dll-names-with-no-spaces} or -D={dll-names}");
             }
 
-            if (dllsParts[0] != "using")
+            if (dllsParts[0] != "--dll" && dllsParts[0] != "-D")
             {
-                return (false, "List of dlls was not given correctly. It should be using={comma-separated-list-of-dll-names-with-no-spaces}. Could not find the \"using\"-part");
+                return (false, "List of dlls was not given correctly. It should be dlls={comma-separated-list-of-dll-names-with-no-spaces} or -D={dll-names}. Could not find the \"--dlls|-D\"-part");
             }
 
             if (dllsParts[1].Contains(" "))
