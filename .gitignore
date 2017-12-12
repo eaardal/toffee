@@ -267,3 +267,6 @@ __pycache__/
 #Rider
 *.iml
 .idea
+
+#Toffee
+Releases/
