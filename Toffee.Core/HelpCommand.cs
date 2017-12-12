@@ -15,6 +15,11 @@ namespace Toffee.Core
             _ui = ui;
         }
 
+        public HelpText HelpText =>
+            new HelpText()
+                .WithCommand("help")
+                .WithDescription("Prints information about commands");
+
         public bool CanExecute(string command)
         {
             return command == "help";
@@ -35,7 +40,7 @@ namespace Toffee.Core
         {
             foreach (var command in commands)
             {
-                var helpText = command.GetHelpText();
+                var helpText = command.HelpText;
 
                 PrintCommandAndDescription(helpText);
                 PrintArguments(helpText);
@@ -51,7 +56,7 @@ namespace Toffee.Core
             {
                 foreach (var example in helpText.Examples)
                 {
-                    _ui.Indent().Indent().Write($"- {example}", ConsoleColor.Yellow).NewLine().NewLine();
+                    _ui.Indent().Indent().Write($"{example}", ConsoleColor.Yellow).NewLine();
                 }
             }
             else
@@ -66,8 +71,8 @@ namespace Toffee.Core
             {
                 foreach (var argument in helpText.Arguments)
                 {
-                    _ui.Indent().Indent().Write($"- {argument.Key}: ", ConsoleColor.DarkCyan)
-                        .Write(argument.Value, ConsoleColor.Cyan).NewLine().NewLine();
+                    _ui.Indent().Indent().Write($"{argument.Key}: ", ConsoleColor.DarkCyan)
+                        .Write(argument.Value, ConsoleColor.Cyan).NewLine();
                 }
             }
             else
@@ -78,7 +83,7 @@ namespace Toffee.Core
 
         private void PrintCommandAndDescription(HelpText helpText)
         {
-            _ui.WriteLine(helpText.Command, ConsoleColor.Green)
+            _ui.NewLine().WriteLine(helpText.Command, ConsoleColor.Green)
                 .WriteLine(helpText.Description)
                 .Indent().Write("Arguments", ConsoleColor.White).NewLine();
         }
@@ -86,21 +91,12 @@ namespace Toffee.Core
         private void PrintVersionNumber()
         {
             _ui.Write($"v{AssemblyHelper.GetExecutingAssemblyVersion()}", ConsoleColor.DarkMagenta)
-                .NewLine()
                 .NewLine();
         }
 
         private void PrintHeader()
         {
             _ui.Write(Ascii.Toffee, ConsoleColor.Magenta);
-        }
-
-        public HelpText GetHelpText()
-        {
-            return new HelpText()
-                .WithCommand("help")
-                .WithDescription("Prints information about commands")
-                ;
         }
     }
 }

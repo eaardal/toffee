@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using Serilog;
 using Toffee.Core.Infrastructure;
 
 namespace Toffee.Core
@@ -12,22 +11,30 @@ namespace Toffee.Core
         private readonly INetFxCsproj _netFxCsproj;
         private readonly IUserInterface _ui;
         private readonly IFilesystem _filesystem;
-        private readonly ILogger _logger;
+        private readonly ICommandHelper _commandHelper;
 
         public RestoreCommand(
             ICommandArgsParser<RestoreCommandArgs> restoreCommandArgsParser,
             INetFxCsproj netFxCsproj,
             IUserInterface ui,
             IFilesystem filesystem,
-            ILogger logger
+            ICommandHelper commandHelper
             )
         {
             _restoreCommandArgsParser = restoreCommandArgsParser;
             _netFxCsproj = netFxCsproj;
             _ui = ui;
             _filesystem = filesystem;
-            _logger = logger;
+            _commandHelper = commandHelper;
         }
+
+        public HelpText HelpText =>
+            new HelpText()
+                .WithCommand("restore")
+                .WithDescription("Restores DLL references to their previous paths")
+                .WithArgument("dest",
+                    "Path to the project directory you want to restore. Typically the same path as provided to the \"link-to\" command's {dest} argument")
+                .WithExample(@"toffee restore dest=C:\ProjectB");
 
         public bool CanExecute(string command)
         {
@@ -36,88 +43,67 @@ namespace Toffee.Core
 
         public int Execute(string[] args)
         {
-            try
+            (var isValid, var exitCode) = _commandHelper.ValidateArgs<RestoreCommand, RestoreCommandArgs>(_restoreCommandArgsParser, args);
+
+            if (!isValid)
             {
-                (var isValid, var reason) = _restoreCommandArgsParser.IsValid(args);
-
-                if (!isValid)
-                {
-                    _ui.WriteLineError(reason);
-                    PrintDone();
-
-                    return ExitCodes.Error;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, $"Error occurred while validating the arguments for {nameof(RestoreCommand)}");
-
-                _ui.WriteLineError(ex.Message);
-                PrintDone();
-
-                return ExitCodes.Error;
+                return exitCode;
             }
             
             try
             {
-                var command = _restoreCommandArgsParser.Parse(args);
+                var command = ParseArgs(args);
 
-                var csprojs = _filesystem.GetFilesByExtensionRecursively(command.DestinationDirectoryPath, "csproj");
+                ReplaceLinkedDllReferencesInProjectFiles(command);
 
-                foreach (var csproj in csprojs)
-                {
-                    PrintInspectingTextToUi(csproj);
-
-                    if (IsUnrecognizedProjectType(csproj)) continue;
-
-                    var replacementRecords =
-                        _netFxCsproj.ReplaceLinkedDllsWithOriginalNuGetDlls(csproj.FullName);
-
-                    if (replacementRecords.Any())
-                    {
-                        foreach (var record in replacementRecords)
-                        {
-                            PrintReplacementToUi(record);
-                        }
-                    }
-                    else
-                    {
-                        _ui.Indent()
-                            .Write("No changes", ConsoleColor.DarkGray)
-                            .End();
-                    }
-                }
-
-                PrintDone();
-
-                return ExitCodes.Success;
+                return _commandHelper.PrintDoneAndExitSuccessfully();
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Error occurred while executing {nameof(RestoreCommand)}");
-
-                _ui.WriteLineError(ex.Message);
-                PrintDone();
-
-                return ExitCodes.Error;
+                return _commandHelper.LogAndExit<RestoreCommand>(ex);
             }
         }
 
-        public HelpText GetHelpText()
+        private void ReplaceLinkedDllReferencesInProjectFiles(RestoreCommandArgs command)
         {
-            return new HelpText()
-                .WithCommand("restore")
-                .WithDescription("Restores DLL references to their previous paths")
-                .WithArgument("dest", "Path to the project directory you want to restore. Typically the same path as provided to the \"link-to\" command's {dest} argument")
-                .WithExample(@"toffee restore dest=C:\ProjectB")
-                ;
+            var csprojs = _filesystem.GetFilesByExtensionRecursively(command.DestinationDirectoryPath, "csproj");
+
+            foreach (var csproj in csprojs)
+            {
+                PrintInspectingTextToUi(csproj);
+
+                if (IsUnrecognizedProjectType(csproj)) continue;
+
+                ReplaceLinkedDllReferencesInProject(csproj);
+            }
         }
 
-        private void PrintDone()
+        private void ReplaceLinkedDllReferencesInProject(FileInfo csproj)
         {
-            _ui.Write("Done", ConsoleColor.White).End();
+            var replacementRecords =
+                _netFxCsproj.ReplaceLinkedDllsWithOriginalNuGetDlls(csproj.FullName);
+
+            if (replacementRecords.Any())
+            {
+                foreach (var record in replacementRecords)
+                {
+                    PrintReplacementToUi(record);
+                }
+            }
+            else
+            {
+                _ui.Indent()
+                    .Write("No changes", ConsoleColor.DarkGray)
+                    .End();
+            }
         }
 
+        private RestoreCommandArgs ParseArgs(string[] args)
+        {
+            var command = _restoreCommandArgsParser.Parse(args);
+            return command;
+        }
+        
         private void PrintReplacementToUi(ReplacementRecord record)
         {
             _ui.Indent()

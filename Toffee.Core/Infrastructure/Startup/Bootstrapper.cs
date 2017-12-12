@@ -18,8 +18,7 @@ namespace Toffee.Core.Infrastructure.Startup
                 loggerConfiguration.WriteTo.Console().MinimumLevel.Debug();
             }
 
-            var logger = loggerConfiguration.CreateLogger();
-            Log.Logger = logger;
+            Log.Logger = loggerConfiguration.CreateLogger();
 
             var ioc = TinyIoCContainer.Current;
             ioc.AutoRegister();
@@ -36,7 +35,7 @@ namespace Toffee.Core.Infrastructure.Startup
             ioc.Register<ICommandArgsParser<LinkToCommandArgs>, LinkToCommandArgsParser>();
             ioc.Register<ICommandArgsParser<RestoreCommandArgs>, RestoreCommandArgsParser>();
 
-            ioc.Register<ILogger>(logger);
+            ioc.Register(Log.Logger);
             
             return TinyIoCContainer.Current;
         }

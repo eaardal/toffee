@@ -45,8 +45,7 @@ namespace Toffee.ConsoleClient
         {
             if (!args.Any())
             {
-                // TODO: Show help text instead
-                return ExitCodes.Success;
+                return _commandHandler.Handle("help", new string[0]);
             }
 
             var command = args.ElementAt(0);

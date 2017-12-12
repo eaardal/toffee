@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Serilog;
 using Toffee.Core.Infrastructure;
 
 namespace Toffee.Core
@@ -13,7 +13,7 @@ namespace Toffee.Core
         private readonly IFilesystem _filesystem;
         private readonly INetFxCsproj _netFxCsproj;
         private readonly IUserInterface _ui;
-        private readonly ILogger _logger;
+        private readonly ICommandHelper _commandHelper;
 
         public LinkToCommand(
             ICommandArgsParser<LinkToCommandArgs> commandArgsParser, 
@@ -21,7 +21,7 @@ namespace Toffee.Core
             IFilesystem filesystem, 
             INetFxCsproj netFxCsproj, 
             IUserInterface ui,
-            ILogger logger
+            ICommandHelper commandHelper
             )
         {
             _commandArgsParser = commandArgsParser;
@@ -29,8 +29,20 @@ namespace Toffee.Core
             _filesystem = filesystem;
             _netFxCsproj = netFxCsproj;
             _ui = ui;
-            _logger = logger;
+            _commandHelper = commandHelper;
         }
+
+        public HelpText HelpText =>
+            new HelpText()
+                .WithCommand("link-to")
+                .WithDescription(
+                    "Finds references to the given DLLs in all .csproj's and replaces them with DLLs found in the specified link's {src} directory.")
+                .WithArgument("dest",
+                    "Path to the project directory where you want to use the DLL's from a link you've made, instead of the original NuGet reference. Typically the project's git root directory, or the same directory your .sln lives. Csprojs are found recursively below this directory.")
+                .WithArgument("link", "Name of the link to use, as entered when using the link-from command")
+                .WithArgument("using",
+                    "Comma separated list of DLL's to replace in csprojs, with DLLs found in the named link's {src} directory instead. The .dll extension can be omitted")
+                .WithExample(@"toffee link-to dest=C:\ProjectB link=my-link using=ProjectA.dll,ProjectC.dll");
 
         public bool CanExecute(string command)
         {
@@ -39,73 +51,58 @@ namespace Toffee.Core
 
         public int Execute(string[] args)
         {
-            try
+            (var isValid, var exitCode) = _commandHelper.ValidateArgs<LinkToCommand, LinkToCommandArgs>(_commandArgsParser, args);
+
+            if (!isValid)
             {
-                (var isValid, var reason) = _commandArgsParser.IsValid(args);
-
-                if (!isValid)
-                {
-                    _ui.WriteLineError(reason);
-                    PrintDone();
-
-                    return ExitCodes.Error;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, $"Error occurred while validating the arguments for {nameof(LinkToCommand)}");
-
-                _ui.WriteLineError(ex.Message);
-                PrintDone();
-
-                return ExitCodes.Error;
+                return exitCode;
             }
             
             try
             {
-                var command = _commandArgsParser.Parse(args);
+                var command = ParseArgs(args);
+                var link = GetLink(command);
 
-                var link = _linkRegistryFile.GetLink(command.LinkName);
+                ReplaceDllReferencesInProjectFiles(command, link);
 
-                var csprojs = _filesystem.GetFilesByExtensionRecursively(command.DestinationDirectoryPath, "csproj");
-
-                foreach (var csproj in csprojs)
-                {
-                    PrintInspectingTextToUi(csproj);
-
-                    if (IsUnrecognizedProjectType(csproj)) continue;
-
-                    ReplaceProjectReferences(csproj, link, command);
-                }
-
-                PrintDone();
-
-                return ExitCodes.Success;
+                return _commandHelper.PrintDoneAndExitSuccessfully();
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Error occurred while executing {nameof(LinkToCommand)}");
-
-                _ui.WriteLineError(ex.Message);
-                PrintDone();
-
-                return ExitCodes.Error;
+                return _commandHelper.LogAndExit<LinkToCommand>(ex);
             }
         }
 
-        public HelpText GetHelpText()
+        private void ReplaceDllReferencesInProjectFiles(LinkToCommandArgs command, Link link)
         {
-            return new HelpText()
-                .WithCommand("link-to")
-                .WithDescription("Finds references to the given DLLs in all .csproj's and replaces them with DLLs found in the specified link's {src} directory.")
-                .WithArgument("dest", "Path to the project directory where you want to use the DLL's from a link you've made, instead of the original NuGet reference. Typically the project's git root directory, or the same directory your .sln lives. Csprojs are found recursively below this directory.")
-                .WithArgument("link", "Name of the link to use, as entered when using the link-from command")
-                .WithArgument("using", "Comma separated list of DLL's to replace in csprojs, with DLLs found in the named link's {src} directory instead. The .dll extension can be omitted")
-                .WithExample(@"toffee link-to dest=C:\ProjectB link=my-link using=ProjectA.dll,ProjectC.dll")
-                ;
+            var csprojs = GetProjectFiles(command);
+
+            foreach (var csproj in csprojs)
+            {
+                PrintInspectingTextToUi(csproj);
+
+                if (IsUnrecognizedProjectType(csproj)) continue;
+
+                ReplaceDllReferencesInProject(csproj, link, command);
+            }
         }
 
-        private void ReplaceProjectReferences(FileInfo csproj, Link link, LinkToCommandArgs command)
+        private IEnumerable<FileInfo> GetProjectFiles(LinkToCommandArgs command)
+        {
+            return _filesystem.GetFilesByExtensionRecursively(command.DestinationDirectoryPath, "csproj");
+        }
+
+        private Link GetLink(LinkToCommandArgs command)
+        {
+            return _linkRegistryFile.GetLink(command.LinkName);
+        }
+
+        private LinkToCommandArgs ParseArgs(string[] args)
+        {
+            return _commandArgsParser.Parse(args);
+        }
+
+        private void ReplaceDllReferencesInProject(FileInfo csproj, Link link, LinkToCommandArgs command)
         {
             var replacementRecords =
                 _netFxCsproj.ReplaceReferencedNuGetDllsWithLinkDlls(csproj.FullName, link, command.Dlls);
@@ -158,11 +155,6 @@ namespace Toffee.Core
             _ui.Write("Inspecting ", ConsoleColor.DarkCyan)
                 .WriteQuoted(csproj.Name, ConsoleColor.Cyan)
                 .End();
-        }
-
-        private void PrintDone()
-        {
-            _ui.Write("Done", ConsoleColor.White).End();
         }
     }
 }

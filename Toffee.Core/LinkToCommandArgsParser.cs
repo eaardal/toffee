@@ -83,7 +83,7 @@ namespace Toffee.Core
 
             if (!foundLink)
             {
-                return (false, $"The link \"{linkName}\" does not exist in the registry");
+                return (false, $"The link \"{linkName}\" does not exist in the registry. Did you create it using the \"link-from\" command?");
             }
 
             var dllsArg = args[3];

@@ -63,7 +63,7 @@ namespace Toffee.Core
                 if (isCommentForReplacedReference)
                 {
                     var originalReference = ExtractOriginalReference(line);
-                    linesCopy.Add($"{ExtractOriginalIndentation(originalReference)}{originalReference}");
+                    linesCopy.Add($"{InterpretOriginalIndentation(originalReference)}{originalReference}");
                     
                     replacedLines.Add(new ReplacementRecord(nextLine.Trim(), originalReference));
 
@@ -83,7 +83,7 @@ namespace Toffee.Core
             return replacedLines;
         }
 
-        private static string ExtractOriginalIndentation(string originalLine)
+        private static string InterpretOriginalIndentation(string originalLine)
         {
             if (originalLine.StartsWith("<Reference"))
             {
