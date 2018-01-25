@@ -82,10 +82,13 @@ Comma separated list of DLL's, to replace in csprojs (found recursively under
 the `dest` directory) with DLL's found in the named link's `src` directory
 instead.
 
+- The DLL name can also contain wildcards: `Foo.*`
+- The DLL name can end without the `.dll` extension: `--dlls=MyProject`
+
 **Example**
 
 ```
---dlls=Foo.Project.dll,Abc.Project.dll
+--dlls=Foo.Project.dll,Abc.Project,Bar*
 -D=Foo.Project.dll,Abc.Project.dll
 ```
 
