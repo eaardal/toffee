@@ -51,6 +51,10 @@ namespace Toffee.Core
                     return false;
                 }
             }
+            catch (UserRequestedExecutionStop)
+            {
+                return false;
+            }
             catch (Exception ex)
             {
                 LogAndExit<TCallee>(ex);

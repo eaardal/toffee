@@ -1,0 +1,20 @@
+2018-01-25 14:51:12.621 +01:00 [Error] Error occurred while executing Toffee.Core.LinkToCommand
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at Toffee.Core.Link.ParseFromCsv(String arg) in C:\dev\git\toffee\Source\Toffee.Core\Link.cs:line 17
+   at System.Linq.Enumerable.WhereSelectListIterator`2.MoveNext()
+   at System.Linq.Enumerable.SingleOrDefault[TSource](IEnumerable`1 source, Func`2 predicate)
+   at Toffee.Core.LinkRegistryFile.TryGetLink(String linkName) in C:\dev\git\toffee\Source\Toffee.Core\LinkRegistryFile.cs:line 84
+   at Toffee.Core.LinkToCommandArgsParser.IsValid(String[] args) in C:\dev\git\toffee\Source\Toffee.Core\LinkToCommandArgsParser.cs:line 91
+   at Toffee.Core.CommandHelper.ValidateArgs[TCallee,TArgs](ICommandArgsParser`1 commandArgsParser, String[] args) in C:\dev\git\toffee\Source\Toffee.Core\CommandHelper.cs:line 46
+2018-01-25 15:13:39.624 +01:00 [Error] Error occurred while executing Toffee.Core.LinkToCommand
+Toffee.Core.Infrastructure.UserRequestedExecutionStop: Exception of type 'Toffee.Core.Infrastructure.UserRequestedExecutionStop' was thrown.
+   at Toffee.Core.LinkToCommandArgsParser.ReadDlls(String[] args, Link link) in C:\dev\git\toffee\Source\Toffee.Core\LinkToCommandArgsParser.cs:line 184
+   at Toffee.Core.LinkToCommandArgsParser.Parse(String[] args) in C:\dev\git\toffee\Source\Toffee.Core\LinkToCommandArgsParser.cs:line 145
+   at Toffee.Core.LinkToCommand.ParseArgs(String[] args) in C:\dev\git\toffee\Source\Toffee.Core\LinkToCommand.cs:line 110
+   at Toffee.Core.LinkToCommand.Execute(String[] args) in C:\dev\git\toffee\Source\Toffee.Core\LinkToCommand.cs:line 71
+2018-01-25 15:46:05.244 +01:00 [Error] Error occurred while executing Toffee.Core.LinkToCommand
+Toffee.Core.Infrastructure.UserRequestedExecutionStop: Exception of type 'Toffee.Core.Infrastructure.UserRequestedExecutionStop' was thrown.
+   at Toffee.Core.LinkToCommandArgsParser.ReadDlls(String[] args, Link link) in C:\dev\git\toffee\Source\Toffee.Core\LinkToCommandArgsParser.cs:line 184
+   at Toffee.Core.LinkToCommandArgsParser.Parse(String[] args) in C:\dev\git\toffee\Source\Toffee.Core\LinkToCommandArgsParser.cs:line 145
+   at Toffee.Core.LinkToCommand.ParseArgs(String[] args) in C:\dev\git\toffee\Source\Toffee.Core\LinkToCommand.cs:line 110
+   at Toffee.Core.LinkToCommand.Execute(String[] args) in C:\dev\git\toffee\Source\Toffee.Core\LinkToCommand.cs:line 71
