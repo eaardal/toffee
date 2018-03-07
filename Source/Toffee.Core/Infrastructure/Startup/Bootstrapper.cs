@@ -28,6 +28,7 @@ namespace Toffee.Core.Infrastructure.Startup
                 typeof(LinkFromCommand),
                 typeof(LinkToCommand),
                 typeof(RestoreCommand),
+                typeof(GetLinksCommand),
                 typeof(HelpCommand)
             });
 

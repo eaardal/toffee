@@ -1,3 +1,20 @@
+## v0.0.5
+> :watch: Released **07.03.2018**
+
+:bug: Fixed bug which caused the LinkRegistry.csv file to become corrupt
+
+## v0.0.4
+> :watch: Released **25.01.2018**
+
+- Fixed `--dlls` param for the `link-to` command. It now works with `--dlls` and not `--dll`.
+- Added wildcard search when using the `--dlls` parameter. Examples:
+```
+--dlls=Foo*
+--dlls=Foo*,Bar
+--dlls=Abc.dll,Bar,Foo*
+```
+You will be prompted to select the matching dlls you want to use before proceeding
+
 ## v0.0.3
 > :watch: Released **12.12.2017**
 

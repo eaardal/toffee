@@ -33,14 +33,14 @@ namespace Toffee.Core
                 return (false, "First param was not the \"link-to\" command");
             }
 
-            var destinationDirectoryPath = args[1];
+            var destinationDirectoryPathArg = args[1];
 
-            if (string.IsNullOrEmpty(destinationDirectoryPath))
+            if (string.IsNullOrEmpty(destinationDirectoryPathArg))
             {
                 return (false, "Path to {--dest|-d} directory was not set");
             }
 
-            var destinationDirectoryPathParts = destinationDirectoryPath.Split('=');
+            var destinationDirectoryPathParts = destinationDirectoryPathArg.Split('=');
 
             if (destinationDirectoryPathParts.Length != 2)
             {
@@ -52,12 +52,14 @@ namespace Toffee.Core
                 return (false, "Path to {--dest|-d} directory was not given correctly. It should be --dest={valid-path} or -d={valid-path}. Could not find the \"--dest|-d\"-part. Remember to wrap the path in double quotes if it contains spaces.");
             }
 
-            if (!_filesystem.DirectoryExists(destinationDirectoryPathParts[1]))
+            var destinationDirectoryPath = destinationDirectoryPathParts[1].Replace('/', '\\');;
+            
+            if (!_filesystem.DirectoryExists(destinationDirectoryPath))
             {
                 return (false, "Path to {--dest|-d} directory does not exist. Remember to wrap the path in double quotes if it contains spaces.");
             }
 
-            if (!Path.IsPathRooted(destinationDirectoryPathParts[1]))
+            if (!Path.IsPathRooted(destinationDirectoryPath))
             {
                 return (false, "The {--dest|-d} directory path must be absolute");
             }
@@ -138,7 +140,7 @@ namespace Toffee.Core
 
         public LinkToCommandArgs Parse(string[] args)
         {
-            var destinationDirectoryPath = args[1].Split('=')[1];
+            var destinationDirectoryPath = args[1].Split('=')[1].Replace('/', '\\');;
             var linkName = args[2].Split('=')[1];
 
             (_, var link) = _linkRegistryFile.TryGetLink(linkName);

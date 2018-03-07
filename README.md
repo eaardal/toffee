@@ -28,6 +28,9 @@ a `bin/Debug` directory.
 -s=C:\projects\Foo\Foo.Project\bin\Debug
 ```
 
+:exclamation: You might get the error `Path to {--src|-s} directory does not exist. Remember to wrap the path in double quotes if it contains spaces.` even though you have a 100% correct path. In that case, this error is probably due to wrong slashes in your path, depending on what terminal you use.
+If your path is `C:\foo\bar` try `C:/foo/bar` instead, or vice versa. This will get fixed in the future :sweat:
+
 #### `--name` | `-n`
 
 Name of the link pointing to the `src` directory.
@@ -64,6 +67,9 @@ directory, or the same directory your `.sln` lives.
 --dest=C:\projects\Bar
 -d=C:\projects\Bar
 ```
+
+:exclamation: You might get the error `Path to {--dest|-d} directory does not exist. Remember to wrap the path in double quotes if it contains spaces.` even though you have a 100% correct path. In that case, this error is probably due to wrong slashes in your path, depending on what terminal you use.
+If your path is `C:\foo\bar` try `C:/foo/bar` instead, or vice versa. This will get fixed in the future :sweat:
 
 #### `--link` | `-l`
 
@@ -125,6 +131,14 @@ $ toffee help
 ```
 
 Displays information about each command and their arguments
+
+## `get-links`
+
+```
+$ toffee get-links
+```
+
+Lists all links
 
 # Dev stuff
 

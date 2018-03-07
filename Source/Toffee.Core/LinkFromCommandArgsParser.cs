@@ -45,7 +45,7 @@ namespace Toffee.Core
                 return (false, "Path to source directory was not given correctly. It should be --src={valid-path} or -s={valid-path}. Could not find the \"--src|-s\"-part. Remember to wrap the path in double quotes if it contains spaces.");
             }
 
-            var sourceDirectoryPath = sourceDirectoryPathParts[1];
+            var sourceDirectoryPath = sourceDirectoryPathParts[1].Replace('/', '\\');
 
             if (!_filesystem.DirectoryExists(sourceDirectoryPath))
             {
@@ -86,7 +86,7 @@ namespace Toffee.Core
 
         public LinkFromCommandArgs Parse(string[] args)
         {
-            var sourceDirectoryPath = args[1].Split('=')[1];
+            var sourceDirectoryPath = args[1].Split('=')[1].Replace('/', '\\');;
             var linkName = args[2].Split('=')[1].ToLower();
 
             return new LinkFromCommandArgs(sourceDirectoryPath, linkName);
