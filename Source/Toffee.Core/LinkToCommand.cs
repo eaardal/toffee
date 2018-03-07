@@ -58,7 +58,7 @@ namespace Toffee.Core
             {
                 return ExitCodes.Error;
             }
-            
+
             try
             {
                 var command = ParseArgs(args);
@@ -66,6 +66,10 @@ namespace Toffee.Core
 
                 ReplaceDllReferencesInProjectFiles(command, link);
 
+                return _commandHelper.PrintDoneAndExitSuccessfully();
+            }
+            catch (UserRequestedExecutionStop)
+            {
                 return _commandHelper.PrintDoneAndExitSuccessfully();
             }
             catch (Exception ex)
