@@ -86,16 +86,7 @@ namespace Toffee.Core.Infrastructure
 
         public void AppendLine(string path, string line)
         {
-            Retry.Operation(() =>
-            {
-                using (var stream = File.Open(path, FileMode.Open, FileAccess.Write, FileShare.Read))
-                {
-                    using (var streamWriter = new StreamWriter(stream, Encoding))
-                    {
-                        streamWriter.WriteLine(line);
-                    }
-                }
-            });
+            File.AppendAllLines(path, new []{line});
         }
 
         public IEnumerable<FileInfo> GetFilesByExtensionRecursively(string path, string extension)
